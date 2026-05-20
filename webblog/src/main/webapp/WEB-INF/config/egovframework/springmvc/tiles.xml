@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC
+        "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+        "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+
+<tiles-definitions>
+    <definition name="defaultLayout" template="/WEB-INF/jsp/layout/layout.jsp">
+        <put-attribute name="header" value="/WEB-INF/jsp/layout/header.jsp"/>
+        <put-attribute name="menu" value="/WEB-INF/jsp/layout/menu.jsp"/>
+        <put-attribute name="footer" value="/WEB-INF/jsp/layout/footer.jsp"/>
+        <put-attribute name="body" value=""/>
+    </definition>
+
+   <definition name="/" extends="defaultLayout">
+        <put-attribute name="body" value="/WEB-INF/jsp/index.jsp"/>
+    </definition>
+
+    <definition name="auth/login" extends="defaultLayout">
+        <put-attribute name="body" value="/WEB-INF/jsp/auth/login.jsp"/>
+    </definition>
+
+    <definition name="auth/register" extends="defaultLayout">
+        <put-attribute name="body" value="/WEB-INF/jsp/auth/register.jsp"/>
+    </definition>
+
+    <definition name="auth/pendingApproval" extends="defaultLayout">
+        <put-attribute name="body" value="/WEB-INF/jsp/auth/pendingApproval.jsp"/>
+    </definition>
+
+    <definition name="admin/dashboard" extends="defaultLayout">
+        <put-attribute name="body" value="/WEB-INF/jsp/admin/dashboard.jsp"/>
+    </definition>
+
+    <definition name="admin/blogList" extends="defaultLayout">
+        <put-attribute name="body" value="/WEB-INF/jsp/admin/blogList.jsp"/>
+    </definition>
+
+    <definition name="blog/blogView" extends="defaultLayout">
+        <put-attribute name="body" value="/WEB-INF/jsp/blog/blogView.jsp"/>
+    </definition>
+
+    <definition name="blog/memberList" extends="defaultLayout">
+        <put-attribute name="body" value="/WEB-INF/jsp/blog/memberList.jsp"/>
+    </definition>
+
+    <definition name="post/postList" extends="defaultLayout">
+        <put-attribute name="body" value="/WEB-INF/jsp/post/postList.jsp"/>
+    </definition>
+
+    <definition name="post/postView" extends="defaultLayout">
+        <put-attribute name="body" value="/WEB-INF/jsp/post/postView.jsp"/>
+    </definition>
+
+    <definition name="post/postForm" extends="defaultLayout">
+        <put-attribute name="body" value="/WEB-INF/jsp/post/postForm.jsp"/>
+    </definition>
+
+    <definition name="blog/blogExplore" extends="defaultLayout">
+        <put-attribute name="body" value="/WEB-INF/jsp/blog/blogExplore.jsp"/>
+    </definition>
+
+    <definition name="blog/blogSetupCreate" extends="defaultLayout">
+        <put-attribute name="body" value="/WEB-INF/jsp/blog/blogSetupCreate.jsp"/>
+    </definition>
+
+    <definition name="blog/blogBoards" extends="defaultLayout">
+        <put-attribute name="body" value="/WEB-INF/jsp/blog/blogBoards.jsp"/>
+    </definition>
+
+    <definition name="blog/blogBlacklist" extends="defaultLayout">
+        <put-attribute name="body" value="/WEB-INF/jsp/blog/blogBlacklist.jsp"/>
+    </definition>
+
+    <definition name="admin/blacklist" extends="defaultLayout">
+        <put-attribute name="body" value="/WEB-INF/jsp/admin/blacklist.jsp"/>
+    </definition>
+</tiles-definitions>

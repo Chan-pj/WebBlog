@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ylove.mapper.UserMapper">
+
+    <resultMap id="userMap" type="com.ylove.vo.BlogUserVO">
+        <id property="userId" column="user_id"/>
+        <result property="email" column="email"/>
+        <result property="nickname" column="nickname"/>
+        <result property="role" column="role"/>
+        <result property="approved" column="is_approved"/>
+        <result property="canCreateBlog" column="can_create_blog"/>
+        <result property="canCreateBoard" column="can_create_board"/>
+        <result property="boardCreateQuota" column="board_create_quota"/>
+        <result property="imageUploadLimitCount" column="image_upload_limit_count"/>
+        <result property="imageSizeLimitBytes" column="image_size_limit_bytes"/>
+        <result property="managementBlocked" column="management_blocked"/>
+        <result property="profileRestricted" column="profile_restricted"/>
+        <result property="phoneNumber" column="phone_number"/>
+        <result property="profileImageUrl" column="profile_image_url"/>
+        <result property="profileBlogTitle" column="profile_blog_title"/>
+        <result property="profileEtc" column="profile_etc"/>
+        <result property="useKakaoAuth" column="use_kakao_auth"/>
+        <result property="kakaoId" column="kakao_id"/>
+    </resultMap>
+
+    <insert id="insertUser" parameterType="com.ylove.vo.BlogUserVO" useGeneratedKeys="true" keyProperty="userId">
+        INSERT INTO blog_user (
+            email, nickname, role, is_approved, can_create_blog, can_create_board,
+            board_create_quota, image_upload_limit_count, image_size_limit_bytes,
+            management_blocked, profile_restricted, phone_number, profile_image_url,
+            profile_blog_title, profile_etc, use_kakao_auth, kakao_id
+        )
+        VALUES (
+            #{email}, #{nickname}, #{role}, #{approved}, #{canCreateBlog}, #{canCreateBoard},
+            #{boardCreateQuota}, #{imageUploadLimitCount}, #{imageSizeLimitBytes},
+            #{managementBlocked}, #{profileRestricted}, #{phoneNumber}, #{profileImageUrl},
+            #{profileBlogTitle}, #{profileEtc}, #{useKakaoAuth}, #{kakaoId}
+        )
+    </insert>
+
+    <select id="selectUserByEmail" parameterType="string" resultMap="userMap">
+        SELECT * FROM blog_user WHERE email = #{email}
+    </select>
+
+    <select id="selectUserByKakaoId" parameterType="string" resultMap="userMap">
+        SELECT * FROM blog_user WHERE kakao_id = #{kakaoId}
+    </select>
+
+    <select id="selectUserById" parameterType="long" resultMap="userMap">
+        SELECT * FROM blog_user WHERE user_id = #{userId}
+    </select>
+
+    <select id="selectAllUsers" resultMap="userMap">
+        SELECT * FROM blog_user ORDER BY user_id DESC
+    </select>
+
+    <update id="updateApprovalAndPermission" parameterType="com.ylove.vo.BlogUserVO">
+        UPDATE blog_user
+        SET is_approved = #{approved},
+            can_create_blog = #{canCreateBlog},
+            can_create_board = #{canCreateBoard},
+            board_create_quota = #{boardCreateQuota},
+            image_upload_limit_count = #{imageUploadLimitCount},
+            image_size_limit_bytes = #{imageSizeLimitBytes}
+        WHERE user_id = #{userId}
+    </update>
+
+    <update id="updateProtection">
+        UPDATE blog_user
+        SET management_blocked = #{managementBlocked},
+            profile_restricted = #{profileRestricted}
+        WHERE user_id = #{userId}
+    </update>
+
+</mapper>

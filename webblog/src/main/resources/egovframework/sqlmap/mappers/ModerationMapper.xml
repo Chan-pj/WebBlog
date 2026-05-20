@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ylove.mapper.ModerationMapper">
+
+    <resultMap id="blacklistMap" type="com.ylove.vo.BlacklistWordVO">
+        <id property="blacklistId" column="blacklist_id"/>
+        <result property="blogId" column="blog_id"/>
+        <result property="word" column="word"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <select id="selectGlobalBlacklist" resultMap="blacklistMap">
+        SELECT * FROM blacklist_word WHERE blog_id IS NULL
+    </select>
+
+    <select id="selectBlogBlacklist" parameterType="long" resultMap="blacklistMap">
+        SELECT * FROM blacklist_word WHERE blog_id = #{blogId}
+    </select>
+
+    <insert id="insertBlacklistWord" parameterType="com.ylove.vo.BlacklistWordVO">
+        INSERT INTO blacklist_word (blog_id, word)
+        VALUES (#{blogId}, #{word})
+    </insert>
+
+    <delete id="deleteGlobalBlacklistWord">
+        DELETE FROM blacklist_word WHERE blacklist_id = #{blacklistId} AND blog_id IS NULL
+    </delete>
+
+    <delete id="deleteBlogBlacklistWord">
+        DELETE FROM blacklist_word
+        WHERE blacklist_id = #{blacklistId} AND blog_id = #{blogId}
+    </delete>
+</mapper>

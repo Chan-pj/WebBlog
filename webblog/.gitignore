@@ -1,0 +1,7 @@
+target/
+*.class
+src/main/resources/egovframework/properties/database.properties
+.settings/
+.classpath
+.project
+*.log

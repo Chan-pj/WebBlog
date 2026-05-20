@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ylove.mapper.BoardMapper">
+
+    <resultMap id="boardMap" type="com.ylove.vo.BoardVO">
+        <id property="boardId" column="board_id"/>
+        <result property="blogId" column="blog_id"/>
+        <result property="boardName" column="board_name"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <insert id="insertBoard" parameterType="com.ylove.vo.BoardVO" useGeneratedKeys="true" keyProperty="boardId">
+        INSERT INTO board (blog_id, board_name, sort_order)
+        VALUES (#{blogId}, #{boardName}, #{sortOrder})
+    </insert>
+
+    <select id="selectBoardById" parameterType="long" resultMap="boardMap">
+        SELECT * FROM board WHERE board_id = #{boardId}
+    </select>
+
+    <select id="selectBoardsByBlogId" parameterType="long" resultMap="boardMap">
+        SELECT * FROM board WHERE blog_id = #{blogId} ORDER BY sort_order ASC, board_id ASC
+    </select>
+
+    <select id="countBoardsByBlogId" parameterType="long" resultType="int">
+        SELECT COUNT(*) FROM board WHERE blog_id = #{blogId}
+    </select>
+
+    <delete id="deleteBoardById">
+        DELETE FROM board WHERE board_id = #{boardId} AND blog_id = #{blogId}
+    </delete>
+
+    <select id="countPostsByBoardId" parameterType="long" resultType="int">
+        SELECT COUNT(*) FROM post WHERE board_id = #{boardId}
+    </select>
+</mapper>

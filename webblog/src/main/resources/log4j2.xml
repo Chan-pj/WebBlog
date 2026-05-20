@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xml>
+<!--  
+기본 로그 설정 
+<Configuration>
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d %5p [%c] %m%n" />
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Logger name="java.sql" level="INFO" additivity="false">
+            <AppenderRef ref="console" />
+        </Logger>
+        <Logger name="egovframework" level="DEBUG" additivity="false">
+            <AppenderRef ref="console" />
+        </Logger>
+        <Logger name="org.egovframe" level="DEBUG" additivity="false">
+            <AppenderRef ref="console" />
+        </Logger> -->
+          <!-- log SQL with timing information, post execution -->
+       <!-- 
+        <Logger name="jdbc.sqltiming" level="INFO" additivity="false">
+            <AppenderRef ref="console" />
+        </Logger>
+        <Logger name="org.springframework" level="INFO" additivity="false">
+            <AppenderRef ref="console" />
+        </Logger>
+        <Root level="INFO">
+            <AppenderRef ref="console" />
+        </Root>
+    </Loggers>
+</Configuration>
+-->
+
+<Configuration status="INFO">
+	<Appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout
+				pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+		</Console>
+		<RollingFile name="RollingFile"
+			fileName="${sys:catalina.home}/logs/application.log"
+			filePattern="${sys:catalina.home}/logs/application-%d{MM-dd-yyyy}-%i.log">
+			<PatternLayout
+				pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+			<Policies>
+				<SizeBasedTriggeringPolicy size="10 MB" />
+			</Policies>
+			<DefaultRolloverStrategy max="10" />
+		</RollingFile>
+	</Appenders>
+	<Loggers>
+		<!-- Spring Security 로그 레벨 설정 -->
+		<Logger name="org.springframework.security" level="DEBUG" />
+		<Logger name="org.springframework.web" level="DEBUG" />
+		<Logger name="com.iunex.garbage" level="DEBUG" />
+		<logger name="org.springframework.context" level="DEBUG" />
+		<logger name="org.springframework.beans" level="DEBUG" />
+		
+		<logger name="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping" level="DEBUG"/>
+		<logger name="org.springframework.web.servlet.handler" level="DEBUG"/>
+		
+
+
+		<Root level="INFO">
+			<AppenderRef ref="Console" />
+			<AppenderRef ref="RollingFile" />
+		</Root>
+	</Loggers>
+</Configuration>
