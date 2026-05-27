@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="com.ylove.mapper.UserMapper">
 
-    <resultMap id="userMap" type="com.ylove.vo.BlogUserVO">
+    <resultMap id="blogUserMap" type="com.ylove.vo.BlogUserVO">
         <id property="userId" column="user_id"/>
         <result property="email" column="email"/>
         <result property="nickname" column="nickname"/>
@@ -23,40 +25,42 @@
         <result property="kakaoId" column="kakao_id"/>
     </resultMap>
 
-    <insert id="insertUser" parameterType="com.ylove.vo.BlogUserVO" useGeneratedKeys="true" keyProperty="userId">
-        INSERT INTO blog_user (
-            email, nickname, role, is_approved, can_create_blog, can_create_board,
-            board_create_quota, image_upload_limit_count, image_size_limit_bytes,
-            management_blocked, profile_restricted, phone_number, profile_image_url,
-            profile_blog_title, profile_etc, use_kakao_auth, kakao_id
-        )
-        VALUES (
-            #{email}, #{nickname}, #{role}, #{approved}, #{canCreateBlog}, #{canCreateBoard},
-            #{boardCreateQuota}, #{imageUploadLimitCount}, #{imageSizeLimitBytes},
-            #{managementBlocked}, #{profileRestricted}, #{phoneNumber}, #{profileImageUrl},
-            #{profileBlogTitle}, #{profileEtc}, #{useKakaoAuth}, #{kakaoId}
-        )
+    <insert id="insertUser" parameterType="com.ylove.vo.BlogUserVO">
+        INSERT INTO blog_user (email, nickname, role, use_kakao_auth, kakao_id, is_approved)
+        VALUES (#{email}, #{nickname}, #{role}, #{useKakaoAuth}, #{kakaoId}, #{approved})
     </insert>
 
-    <select id="selectUserByEmail" parameterType="string" resultMap="userMap">
+    <select id="selectUserByEmail" resultMap="blogUserMap">
         SELECT * FROM blog_user WHERE email = #{email}
     </select>
 
-    <select id="selectUserByKakaoId" parameterType="string" resultMap="userMap">
+    <select id="selectUserByKakaoId" resultMap="blogUserMap">
         SELECT * FROM blog_user WHERE kakao_id = #{kakaoId}
     </select>
 
-    <select id="selectUserById" parameterType="long" resultMap="userMap">
+    <select id="selectUserById" resultMap="blogUserMap">
         SELECT * FROM blog_user WHERE user_id = #{userId}
     </select>
 
-    <select id="selectAllUsers" resultMap="userMap">
+    <select id="selectAllUsers" resultMap="blogUserMap">
         SELECT * FROM blog_user ORDER BY user_id DESC
     </select>
 
+    <select id="selectUsersWithoutOwnedBlog" resultMap="blogUserMap">
+        SELECT u.* FROM blog_user u
+        LEFT JOIN blog b ON u.user_id = b.owner_user_id
+        WHERE b.owner_user_id IS NULL
+          AND u.role != 'SUPER_ADMIN'
+        ORDER BY u.user_id DESC
+    </select>
+
+    <select id="countAllUsers" resultType="long">
+        SELECT COUNT(*) FROM blog_user
+    </select>
+
     <update id="updateApprovalAndPermission" parameterType="com.ylove.vo.BlogUserVO">
-        UPDATE blog_user
-        SET is_approved = #{approved},
+        UPDATE blog_user SET
+            is_approved = #{approved},
             can_create_blog = #{canCreateBlog},
             can_create_board = #{canCreateBoard},
             board_create_quota = #{boardCreateQuota},
@@ -66,8 +70,8 @@
     </update>
 
     <update id="updateProtection">
-        UPDATE blog_user
-        SET management_blocked = #{managementBlocked},
+        UPDATE blog_user SET
+            management_blocked = #{managementBlocked},
             profile_restricted = #{profileRestricted}
         WHERE user_id = #{userId}
     </update>

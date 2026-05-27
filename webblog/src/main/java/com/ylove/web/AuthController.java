@@ -306,7 +306,7 @@ public class AuthController {
                 Collections.emptyMap());
 
         Object emailObj = kakaoAccount.get("email");
-        String email = emailObj != null ? String.valueOf(emailObj) : "kakao_user_" + kakaoId + "@kakao.local";
+        String email = emailObj != null ? String.valueOf(emailObj) : "kakao_" + kakaoId;
 
         Object nicknameObj = profile.get("nickname");
         String nickname = nicknameObj != null ? String.valueOf(nicknameObj) : "카카오회원";

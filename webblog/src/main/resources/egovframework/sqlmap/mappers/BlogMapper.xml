@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="com.ylove.mapper.BlogMapper">
 
     <resultMap id="blogMap" type="com.ylove.vo.BlogVO">
@@ -14,31 +16,17 @@
         <result property="totalCapacityBytes" column="total_capacity_bytes"/>
     </resultMap>
 
-    <resultMap id="memberMap" type="com.ylove.vo.BlogMemberVO">
-        <id property="memberId" column="member_id"/>
-        <result property="blogId" column="blog_id"/>
-        <result property="userId" column="user_id"/>
-        <result property="memberRole" column="member_role"/>
-        <result property="status" column="status"/>
-        <result property="joinedAt" column="joined_at"/>
-    </resultMap>
+    <insert id="insertBlog" parameterType="com.ylove.vo.BlogVO"
+        useGeneratedKeys="true" keyProperty="blogId">
+    	INSERT INTO blog (blog_name, owner_user_id, is_public)
+    	VALUES (#{blogName}, #{ownerUserId}, #{isPublic})
+	</insert>
 
-    <insert id="insertBlog" parameterType="com.ylove.vo.BlogVO" useGeneratedKeys="true" keyProperty="blogId">
-        INSERT INTO blog (
-            owner_user_id, blog_name, is_public, board_limit, image_limit_count, image_size_limit_bytes,
-            file_size_limit_bytes, total_capacity_bytes
-        )
-        VALUES (
-            #{ownerUserId}, #{blogName}, #{isPublic}, #{boardLimit}, #{imageLimitCount}, #{imageSizeLimitBytes},
-            #{fileSizeLimitBytes}, #{totalCapacityBytes}
-        )
-    </insert>
-
-    <select id="selectBlogById" parameterType="long" resultMap="blogMap">
+    <select id="selectBlogById" resultMap="blogMap">
         SELECT * FROM blog WHERE blog_id = #{blogId}
     </select>
 
-    <select id="selectBlogByOwnerUserId" parameterType="long" resultMap="blogMap">
+    <select id="selectBlogByOwnerUserId" resultMap="blogMap">
         SELECT * FROM blog WHERE owner_user_id = #{ownerUserId}
     </select>
 
@@ -46,57 +34,63 @@
         SELECT * FROM blog ORDER BY blog_id DESC
     </select>
 
-    <update id="updateBlog" parameterType="com.ylove.vo.BlogVO">
-        UPDATE blog
-        SET blog_name = #{blogName},
-            is_public = #{isPublic},
-            board_limit = #{boardLimit},
-            image_limit_count = #{imageLimitCount},
-            image_size_limit_bytes = #{imageSizeLimitBytes},
-            file_size_limit_bytes = #{fileSizeLimitBytes},
-            total_capacity_bytes = #{totalCapacityBytes}
-        WHERE blog_id = #{blogId}
-    </update>
-
-    <insert id="insertBlogMember" parameterType="com.ylove.vo.BlogMemberVO">
-        INSERT INTO blog_member (blog_id, user_id, member_role, status)
-        VALUES (#{blogId}, #{userId}, #{memberRole}, #{status})
-    </insert>
-
-    <select id="selectBlogMembers" parameterType="long" resultMap="memberMap">
-        SELECT * FROM blog_member WHERE blog_id = #{blogId} ORDER BY member_id DESC
-    </select>
-
-    <update id="updateBlogMemberStatus" parameterType="com.ylove.vo.BlogMemberVO">
-        UPDATE blog_member
-        SET status = #{status}
-        WHERE member_id = #{memberId}
-    </update>
-
-    <select id="selectActiveMemberBlogId" parameterType="long" resultType="long">
-        SELECT bm.blog_id
-        FROM blog_member bm
-        WHERE bm.user_id = #{userId}
-          AND bm.status = 'ACTIVE'
-        ORDER BY bm.joined_at DESC, bm.member_id DESC
-        LIMIT 1
-    </select>
-
-    <select id="countActiveMembership" resultType="int">
-        SELECT COUNT(*)
-        FROM blog_member
-        WHERE blog_id = #{blogId}
-          AND user_id = #{userId}
-          AND status = 'ACTIVE'
-    </select>
-
     <select id="selectPublicBlogs" resultMap="blogMap">
         SELECT * FROM blog WHERE is_public = 1 ORDER BY blog_id DESC
     </select>
 
-    <select id="selectMembership" resultMap="memberMap">
-        SELECT * FROM blog_member
-        WHERE blog_id = #{blogId} AND user_id = #{userId}
+    <update id="updateBlog" parameterType="com.ylove.vo.BlogVO">
+        UPDATE blog SET blog_name=#{blogName}, is_public=#{isPublic}
+        WHERE blog_id=#{blogId}
+    </update>
+
+    <insert id="insertBlogMember" parameterType="com.ylove.vo.BlogMemberVO">
+        INSERT INTO blog_member (blog_id, user_id, status)
+        VALUES (#{blogId}, #{userId}, #{status})
+    </insert>
+
+    <select id="selectBlogMembers" resultType="com.ylove.vo.BlogMemberVO">
+        SELECT * FROM blog_member WHERE blog_id = #{blogId}
+    </select>
+
+    <update id="updateBlogMemberStatus" parameterType="com.ylove.vo.BlogMemberVO">
+        UPDATE blog_member SET status=#{status}
+        WHERE blog_id=#{blogId} AND user_id=#{userId}
+    </update>
+
+    <select id="selectActiveMemberBlogId" resultType="long">
+        SELECT blog_id FROM blog_member
+        WHERE user_id = #{userId} AND status = 'ACTIVE'
         LIMIT 1
     </select>
+
+    <select id="countBlogOwnerMatch" resultType="int">
+        SELECT COUNT(*) FROM blog WHERE blog_id=#{blogId} AND owner_user_id=#{userId}
+    </select>
+
+    <select id="countActiveBlogMember" resultType="int">
+        SELECT COUNT(*) FROM blog_member
+        WHERE blog_id=#{blogId} AND user_id=#{userId} AND status='ACTIVE'
+    </select>
+
+    <select id="countBlogMemberForUser" resultType="int">
+        SELECT COUNT(*) FROM blog_member WHERE blog_id=#{blogId} AND user_id=#{userId}
+    </select>
+
+    <select id="selectBlogMemberByBlogAndUser" resultType="com.ylove.vo.BlogMemberVO">
+        SELECT * FROM blog_member WHERE blog_id=#{blogId} AND user_id=#{userId}
+    </select>
+
+    <select id="countAllBlogs" resultType="int">
+        SELECT COUNT(*) FROM blog
+    </select>
+
+    <select id="countActiveMembers" resultType="int">
+        SELECT COUNT(*) FROM blog_member WHERE status='ACTIVE'
+    </select>
+    
+    <select id="countActiveMembership" resultType="int">
+    	SELECT COUNT(*) FROM blog_member
+    	WHERE blog_id=#{blogId} AND user_id=#{userId} AND status='ACTIVE'
+	</select>
+
 </mapper>

@@ -1,11 +1,10 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <ul>
     <li><a href="${pageContext.request.contextPath}/">홈</a></li>
     <c:choose>
         <c:when test="${not empty sessionScope.loginUser}">
-            <li>${sessionScope.loginUser.nickname}님 환영합니다.</li>
+            <li><span>${sessionScope.loginUser.nickname}님</span></li>
             <li><a href="${pageContext.request.contextPath}/blog/explore.do">블로그 찾기</a></li>
             <c:if test="${sessionScope.loginUser.approved and sessionScope.loginUser.canCreateBlog and sessionScope.loginUser.role eq 'BLOG_ADMIN'}">
                 <li><a href="${pageContext.request.contextPath}/blog/setup/create.do">블로그 개설</a></li>

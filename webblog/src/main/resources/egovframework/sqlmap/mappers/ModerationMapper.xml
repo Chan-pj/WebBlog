@@ -1,33 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="com.ylove.mapper.ModerationMapper">
 
-    <resultMap id="blacklistMap" type="com.ylove.vo.BlacklistWordVO">
-        <id property="blacklistId" column="blacklist_id"/>
-        <result property="blogId" column="blog_id"/>
-        <result property="word" column="word"/>
-        <result property="createdAt" column="created_at"/>
-    </resultMap>
-
-    <select id="selectGlobalBlacklist" resultMap="blacklistMap">
+    <select id="selectGlobalBlacklist" resultType="com.ylove.vo.BlacklistWordVO">
         SELECT * FROM blacklist_word WHERE blog_id IS NULL
     </select>
 
-    <select id="selectBlogBlacklist" parameterType="long" resultMap="blacklistMap">
+    <select id="selectBlogBlacklist" resultType="com.ylove.vo.BlacklistWordVO">
         SELECT * FROM blacklist_word WHERE blog_id = #{blogId}
     </select>
 
+    <select id="selectAllBlacklistWords" resultType="com.ylove.vo.BlacklistWordVO">
+        SELECT * FROM blacklist_word
+    </select>
+
     <insert id="insertBlacklistWord" parameterType="com.ylove.vo.BlacklistWordVO">
-        INSERT INTO blacklist_word (blog_id, word)
-        VALUES (#{blogId}, #{word})
+        INSERT INTO blacklist_word (word, blog_id)
+        VALUES (#{word}, #{blogId})
     </insert>
 
+    <insert id="insertViolation" parameterType="com.ylove.vo.ModerationViolationVO">
+        INSERT INTO moderation_violations (post_id, violation_type, detected_word, created_at)
+        VALUES (#{postId}, #{violationType}, #{detectedWord}, NOW())
+    </insert>
+
+    <select id="countViolations" resultType="int">
+        SELECT COUNT(*) FROM moderation_violations
+    </select>
+
+    <select id="countViolationsByType" resultType="int">
+        SELECT COUNT(*) FROM moderation_violations WHERE violation_type = #{violationType}
+    </select>
+
+    <select id="selectViolationsForReport" resultType="com.ylove.vo.ModerationViolationVO">
+        SELECT * FROM moderation_violations ORDER BY created_at DESC LIMIT #{limit}
+    </select>
+    
     <delete id="deleteGlobalBlacklistWord">
-        DELETE FROM blacklist_word WHERE blacklist_id = #{blacklistId} AND blog_id IS NULL
+        DELETE FROM blacklist_words
+        WHERE blacklist_id = #{blacklistId} AND blog_id IS NULL
     </delete>
 
     <delete id="deleteBlogBlacklistWord">
-        DELETE FROM blacklist_word
+        DELETE FROM blacklist_words
         WHERE blacklist_id = #{blacklistId} AND blog_id = #{blogId}
     </delete>
+
 </mapper>

@@ -1,7 +1,6 @@
 package com.ylove.service;
 
 import java.util.List;
-
 import com.ylove.vo.BlogUserVO;
 
 public interface UserService {
@@ -10,6 +9,8 @@ public interface UserService {
     BlogUserVO getUserByEmail(String email);
     BlogUserVO getUserById(Long userId);
     List<BlogUserVO> getAllUsers();
+    List<BlogUserVO> getUsersWithoutOwnedBlog();
+    long countAllUsers();
     void updateApprovalAndPermission(BlogUserVO user);
     void updateProtection(Long userId, boolean managementBlocked, boolean profileRestricted);
 }

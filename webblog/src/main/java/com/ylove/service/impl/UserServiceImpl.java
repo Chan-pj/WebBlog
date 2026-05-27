@@ -1,12 +1,9 @@
 package com.ylove.service.impl;
 
 import java.util.List;
-
 import javax.annotation.Resource;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.ylove.mapper.UserMapper;
 import com.ylove.service.UserService;
 import com.ylove.vo.BlogUserVO;
@@ -21,20 +18,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public BlogUserVO registerUser(BlogUserVO user) {
         BlogUserVO exists = userMapper.selectUserByEmail(user.getEmail());
-        if (exists != null) {
-            return exists;
-        }
-        if (user.getRole() == null || user.getRole().trim().isEmpty()) {
-            user.setRole("BLOG_MEMBER");
-        }
-        user.setApproved(false);
-        user.setCanCreateBlog(false);
-        user.setCanCreateBoard(false);
-        user.setBoardCreateQuota(0);
-        user.setImageUploadLimitCount(5);
-        user.setImageSizeLimitBytes(5L * 1024L * 1024L);
-        user.setManagementBlocked(false);
-        user.setProfileRestricted(false);
+        if (exists != null) return exists;
         userMapper.insertUser(user);
         return user;
     }
@@ -43,25 +27,13 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public BlogUserVO registerKakaoUser(String kakaoId, String email, String nickname) {
         BlogUserVO exists = userMapper.selectUserByKakaoId(kakaoId);
-        if (exists != null) {
-            return exists;
-        }
-
+        if (exists != null) return exists;
         BlogUserVO user = new BlogUserVO();
         user.setKakaoId(kakaoId);
         user.setEmail(email);
         user.setNickname(nickname);
-        user.setRole("BLOG_ADMIN");
-        user.setApproved(false);
-        user.setCanCreateBlog(false);
-        user.setCanCreateBoard(false);
-        user.setBoardCreateQuota(0);
-        user.setImageUploadLimitCount(5);
-        user.setImageSizeLimitBytes(5L * 1024L * 1024L);
-        user.setManagementBlocked(false);
-        user.setProfileRestricted(false);
+        user.setRole("USER");
         user.setUseKakaoAuth(true);
-
         userMapper.insertUser(user);
         return user;
     }
@@ -79,6 +51,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<BlogUserVO> getAllUsers() {
         return userMapper.selectAllUsers();
+    }
+
+    @Override
+    public List<BlogUserVO> getUsersWithoutOwnedBlog() {
+        return userMapper.selectUsersWithoutOwnedBlog();
+    }
+
+    @Override
+    public long countAllUsers() {
+        return userMapper.countAllUsers();
     }
 
     @Override

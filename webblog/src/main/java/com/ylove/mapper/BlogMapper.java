@@ -25,12 +25,19 @@ public interface BlogMapper {
      */
     Long selectActiveMemberBlogId(Long userId);
 
-    /**
-     * 특정 사용자가 특정 블로그에 ACTIVE 상태 멤버인지 확인.
-     */
-    Integer countActiveMembership(@Param("blogId") Long blogId, @Param("userId") Long userId);
+    int countBlogOwnerMatch(@Param("blogId") Long blogId, @Param("userId") Long userId);
 
+    int countActiveBlogMember(@Param("blogId") Long blogId, @Param("userId") Long userId);
+
+    int countBlogMemberForUser(@Param("blogId") Long blogId, @Param("userId") Long userId);
+
+    BlogMemberVO selectBlogMemberByBlogAndUser(@Param("blogId") Long blogId, @Param("userId") Long userId);
+
+    int countAllBlogs();
+
+    int countActiveMembers();
+    
     List<BlogVO> selectPublicBlogs();
-
-    BlogMemberVO selectMembership(@Param("blogId") Long blogId, @Param("userId") Long userId);
+    
+    int countActiveMembership(@Param("blogId") Long blogId, @Param("userId") Long userId);
 }
