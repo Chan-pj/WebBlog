@@ -2,9 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.ylove.mapper.BlogMapper">
+<mapper namespace="com.chan.mapper.BlogMapper">
 
-    <resultMap id="blogMap" type="com.ylove.vo.BlogVO">
+    <resultMap id="blogMap" type="com.chan.vo.BlogVO">
         <id property="blogId" column="blog_id"/>
         <result property="ownerUserId" column="owner_user_id"/>
         <result property="blogName" column="blog_name"/>
@@ -16,7 +16,7 @@
         <result property="totalCapacityBytes" column="total_capacity_bytes"/>
     </resultMap>
 
-    <insert id="insertBlog" parameterType="com.ylove.vo.BlogVO"
+    <insert id="insertBlog" parameterType="com.chan.vo.BlogVO"
         useGeneratedKeys="true" keyProperty="blogId">
     	INSERT INTO blog (blog_name, owner_user_id, is_public)
     	VALUES (#{blogName}, #{ownerUserId}, #{isPublic})
@@ -38,21 +38,21 @@
         SELECT * FROM blog WHERE is_public = 1 ORDER BY blog_id DESC
     </select>
 
-    <update id="updateBlog" parameterType="com.ylove.vo.BlogVO">
+    <update id="updateBlog" parameterType="com.chan.vo.BlogVO">
         UPDATE blog SET blog_name=#{blogName}, is_public=#{isPublic}
         WHERE blog_id=#{blogId}
     </update>
 
-    <insert id="insertBlogMember" parameterType="com.ylove.vo.BlogMemberVO">
+    <insert id="insertBlogMember" parameterType="com.chan.vo.BlogMemberVO">
         INSERT INTO blog_member (blog_id, user_id, status)
         VALUES (#{blogId}, #{userId}, #{status})
     </insert>
 
-    <select id="selectBlogMembers" resultType="com.ylove.vo.BlogMemberVO">
+    <select id="selectBlogMembers" resultType="com.chan.vo.BlogMemberVO">
         SELECT * FROM blog_member WHERE blog_id = #{blogId}
     </select>
 
-    <update id="updateBlogMemberStatus" parameterType="com.ylove.vo.BlogMemberVO">
+    <update id="updateBlogMemberStatus" parameterType="com.chan.vo.BlogMemberVO">
         UPDATE blog_member SET status=#{status}
         WHERE blog_id=#{blogId} AND user_id=#{userId}
     </update>
@@ -76,7 +76,7 @@
         SELECT COUNT(*) FROM blog_member WHERE blog_id=#{blogId} AND user_id=#{userId}
     </select>
 
-    <select id="selectBlogMemberByBlogAndUser" resultType="com.ylove.vo.BlogMemberVO">
+    <select id="selectBlogMemberByBlogAndUser" resultType="com.chan.vo.BlogMemberVO">
         SELECT * FROM blog_member WHERE blog_id=#{blogId} AND user_id=#{userId}
     </select>
 
@@ -93,7 +93,7 @@
     	WHERE blog_id=#{blogId} AND user_id=#{userId} AND status='ACTIVE'
 	</select>
 	
-	<select id="selectMembership" resultType="com.ylove.vo.BlogMemberVO">
+	<select id="selectMembership" resultType="com.chan.vo.BlogMemberVO">
     	SELECT * FROM blog_member WHERE blog_id=#{blogId} AND user_id=#{userId}
 	</select>
 

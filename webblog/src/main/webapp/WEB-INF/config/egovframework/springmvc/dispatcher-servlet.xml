@@ -7,7 +7,7 @@
                 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
                 http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
 
-    <context:component-scan base-package="egovframework,com.ylove">
+    <context:component-scan base-package="egovframework,com.chan">
         <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
         <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Service"/>
         <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Repository"/>
@@ -15,7 +15,7 @@
 
     <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
         <property name="webBindingInitializer">
-            <bean class="com.ylove.config.cmmn.web.WebBlogBindingInitializer"/>
+            <bean class="com.chan.config.cmmn.web.WebBlogBindingInitializer"/>
         </property>
     </bean>
     <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping">
@@ -43,7 +43,7 @@
             <array/>
         </constructor-arg>
         <constructor-arg>
-            <bean class="com.ylove.web.interceptor.AdminAuthInterceptor"/>
+            <bean class="com.chan.web.interceptor.AdminAuthInterceptor"/>
         </constructor-arg>
     </bean>
 
@@ -74,7 +74,7 @@
 	    p:prefix="/WEB-INF/jsp/egovframework/example/" p:suffix=".jsp"/>
 
     <!-- For Pagination Tag -->
-    <bean id="imageRenderer" class="com.ylove.config.cmmn.web.WebBlogImgPaginationRenderer"/>
+    <bean id="imageRenderer" class="com.chan.config.cmmn.web.WebBlogImgPaginationRenderer"/>
 
     <bean id="paginationManager" class="org.egovframe.rte.ptl.mvc.tags.ui.pagination.DefaultPaginationManager">
         <property name="rendererType">

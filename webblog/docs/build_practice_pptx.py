@@ -151,7 +151,7 @@ def main():
         prs,
         "1주차 · dispatcher-servlet.xml · tiles.xml",
         [
-            "dispatcher-servlet.xml: @Controller 스캔(egovframework, com.ylove)",
+            "dispatcher-servlet.xml: @Controller 스캔(egovframework, com.chan)",
             "TilesConfigurer + TilesViewResolver: home, auth/*, admin/*, blog/*, post/*",
             "UrlBasedViewResolver(순서 2): 샘플 egovframework/example JSP 경로",
             "LocaleChangeInterceptor, 예외 SimpleMappingExceptionResolver",
@@ -189,7 +189,7 @@ def main():
         prs,
         "2주차 · 컨트롤러 · AuthController",
         [
-            "패키지: com.ylove.web.AuthController",
+            "패키지: com.chan.web.AuthController",
             "일반: GET/POST /auth/login.do, /auth/register.do, /auth/logout.do",
             "카카오: /auth/kakao/login.do, /auth/kakao/callback.do",
             "RestTemplate + Jackson으로 토큰·사용자 JSON 처리",

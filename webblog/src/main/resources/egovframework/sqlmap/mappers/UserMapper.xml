@@ -2,9 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.ylove.mapper.UserMapper">
+<mapper namespace="com.chan.mapper.UserMapper">
 
-    <resultMap id="blogUserMap" type="com.ylove.vo.BlogUserVO">
+    <resultMap id="blogUserMap" type="com.chan.vo.BlogUserVO">
         <id property="userId" column="user_id"/>
         <result property="email" column="email"/>
         <result property="nickname" column="nickname"/>
@@ -25,7 +25,7 @@
         <result property="kakaoId" column="kakao_id"/>
     </resultMap>
 
-    <insert id="insertUser" parameterType="com.ylove.vo.BlogUserVO">
+    <insert id="insertUser" parameterType="com.chan.vo.BlogUserVO">
         INSERT INTO blog_user (email, nickname, role, use_kakao_auth, kakao_id, is_approved)
         VALUES (#{email}, #{nickname}, #{role}, #{useKakaoAuth}, #{kakaoId}, #{approved})
     </insert>
@@ -58,7 +58,7 @@
         SELECT COUNT(*) FROM blog_user
     </select>
 
-    <update id="updateApprovalAndPermission" parameterType="com.ylove.vo.BlogUserVO">
+    <update id="updateApprovalAndPermission" parameterType="com.chan.vo.BlogUserVO">
         UPDATE blog_user SET
             is_approved = #{approved},
             can_create_blog = #{canCreateBlog},

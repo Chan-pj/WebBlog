@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ylove.mapper.PostMapper">
+<mapper namespace="com.chan.mapper.PostMapper">
 
-    <resultMap id="postMap" type="com.ylove.vo.PostVO">
+    <resultMap id="postMap" type="com.chan.vo.PostVO">
         <id property="postId" column="post_id"/>
         <result property="blogId" column="blog_id"/>
         <result property="boardId" column="board_id"/>
@@ -12,12 +12,12 @@
         <result property="content" column="content"/>
     </resultMap>
 
-    <insert id="insertPost" parameterType="com.ylove.vo.PostVO" useGeneratedKeys="true" keyProperty="postId">
+    <insert id="insertPost" parameterType="com.chan.vo.PostVO" useGeneratedKeys="true" keyProperty="postId">
         INSERT INTO post (blog_id, board_id, parent_post_id, writer_user_id, title, content)
         VALUES (#{blogId}, #{boardId}, #{parentPostId}, #{writerUserId}, #{title}, #{content})
     </insert>
 
-    <update id="updatePost" parameterType="com.ylove.vo.PostVO">
+    <update id="updatePost" parameterType="com.chan.vo.PostVO">
         UPDATE post
         SET title = #{title},
             content = #{content}

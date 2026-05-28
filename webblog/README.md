@@ -210,7 +210,7 @@ flowchart BT
 ### (A) MVC/Tiles 동작 보정
 
 - `dispatcher-servlet.xml`
-  - 컨트롤러 스캔 대상을 `egovframework,com.ylove`로 확장
+  - 컨트롤러 스캔 대상을 `egovframework,com.chan`로 확장
   - Tiles 설정(`TilesConfigurer`, `TilesViewResolver`) 연결
 - `index.jsp`
   - 샘플 URL 포워딩에서 `/` 홈 포워딩으로 변경
@@ -259,7 +259,7 @@ flowchart BT
 ## 5) 프로젝트 구조(핵심)
 
 ```text
-src/main/java/com/ylove
+src/main/java/com/chan
 ├─ web
 │  ├─ HomeController.java
 │  ├─ AuthController.java
@@ -318,10 +318,10 @@ classpath*:egovframework/spring/context-*.xml
 |------|-----------|
 | `context-properties.xml` | `database.properties`·`~/.webblog/database.properties` 로드, `db.*` 치환 준비. eGov `propertiesService`(페이지 단위 등 샘플용 맵) |
 | `context-datasource.xml` | `dataSource` 빈(DBCP2). `WEBBLOG_DB_*` 환경변수와 `db.*` 조합 |
-| `context-common.xml` | `egovframework`, `com.ylove` 패키지 스캔(**`@Controller` 제외**). `messageSource`, eGov 추적(`LeaveaTrace`) 빈 |
-| `context-mapper.xml` | MyBatis `SqlSessionFactoryBean`, `mapperLocations`, `MapperScannerConfigurer`로 `com.ylove.mapper`(`@Mapper`) 인터페이스를 빈 등록 후 XML 매퍼와 연결 |
-| `context-transaction.xml` | `DataSourceTransactionManager`, `tx:advice`, `com.ylove..impl.*Impl` 메서드에 트랜잭션 AOP |
-| `context-aspect.xml` | eGov `ExceptionTransfer` AOP. **포인트컷이 `egovframework.example..impl.*Impl` 한정**(샘플). `com.ylove` 서비스에는 기본 적용되지 않음 |
+| `context-common.xml` | `egovframework`, `com.chan` 패키지 스캔(**`@Controller` 제외**). `messageSource`, eGov 추적(`LeaveaTrace`) 빈 |
+| `context-mapper.xml` | MyBatis `SqlSessionFactoryBean`, `mapperLocations`, `MapperScannerConfigurer`로 `com.chan.mapper`(`@Mapper`) 인터페이스를 빈 등록 후 XML 매퍼와 연결 |
+| `context-transaction.xml` | `DataSourceTransactionManager`, `tx:advice`, `com.chan..impl.*Impl` 메서드에 트랜잭션 AOP |
+| `context-aspect.xml` | eGov `ExceptionTransfer` AOP. **포인트컷이 `egovframework.example..impl.*Impl` 한정**(샘플). `com.chan` 서비스에는 기본 적용되지 않음 |
 | `context-idgen.xml` | eGov 표준 ID 생성(`IDS` 테이블·`SAMPLE` 등). 샘플 연동용. 블로그 테이블은 MyBatis `useGeneratedKeys` 위주 |
 | `context-validator.xml` | Commons Validator 연동(`beanValidator`, `validator-rules.xml`, `validator.xml`). 샘플 JSP 검증 등에 사용 |
 
@@ -330,12 +330,12 @@ classpath*:egovframework/spring/context-*.xml
 - **DB만 바꿀 때**  
   - `context-datasource.xml`을 직접 고치기보다 `database.properties`, `~/.webblog/database.properties`, 환경변수 `WEBBLOG_DB_*` 로 조정하는 것을 권장합니다.
 - **새 Mapper 추가**  
-  - 인터페이스: `com.ylove.mapper` 패키지  
+  - 인터페이스: `com.chan.mapper` 패키지  
   - XML: `egovframework/sqlmap/mappers/*.xml` (`context-mapper.xml`의 `mapperLocations`와 일치)
 - **트랜잭션 범위**  
-  - `context-transaction.xml`의 `pointcut`이 `com.ylove..impl.*Impl` 이므로, 서비스 구현체 클래스명이 `*Impl`이고 해당 패키지 아래에 있어야 합니다. 패키지·이름 규칙을 바꾸면 표현식도 함께 수정해야 합니다.
+  - `context-transaction.xml`의 `pointcut`이 `com.chan..impl.*Impl` 이므로, 서비스 구현체 클래스명이 `*Impl`이고 해당 패키지 아래에 있어야 합니다. 패키지·이름 규칙을 바꾸면 표현식도 함께 수정해야 합니다.
 - **예외를 eGov 방식으로 통일하고 싶을 때**  
-  - `context-aspect.xml`의 `execution` 표현식에 `com.ylove..impl` 등을 추가하거나, 별도 `@ControllerAdvice` 등으로 보완할 수 있습니다.
+  - `context-aspect.xml`의 `execution` 표현식에 `com.chan..impl` 등을 추가하거나, 별도 `@ControllerAdvice` 등으로 보완할 수 있습니다.
 - **검증(Validator)**  
   - `context-validator.xml`은 `WEB-INF/config/egovframework/validator/` 아래 규칙 파일을 참조합니다. 폼 검증을 쓰는 화면만 연동하면 됩니다.
 
@@ -358,7 +358,7 @@ classpath*:egovframework/spring/context-*.xml
 
 | 구역 | 내용 |
 |------|------|
-| **컴포넌트 스캔** | `egovframework`, `com.ylove` 중 **`@Controller`만** 포함. `@Service`, `@Repository`는 제외 → 비즈니스 빈은 루트에서만 관리 |
+| **컴포넌트 스캔** | `egovframework`, `com.chan` 중 **`@Controller`만** 포함. `@Service`, `@Repository`는 제외 → 비즈니스 빈은 루트에서만 관리 |
 | **RequestMappingHandlerAdapter** | `EgovBindingInitializer` 연동 — eGov 샘플에서 쓰는 바인딩/날짜 등 초기화 관례 |
 | **RequestMappingHandlerMapping** | `interceptors`: `localeChangeInterceptor`, `adminAuthInterceptor` 순서로 등록 |
 | **Locale** | `SessionLocaleResolver` + `LocaleChangeInterceptor` (`?language=...` 파라미터로 로케일 변경) |
@@ -377,7 +377,7 @@ classpath*:egovframework/spring/context-*.xml
 ### 수정·확장 시 자주 건드리는 부분
 
 - **새 컨트롤러 패키지**  
-  - `context:component-scan` 의 `base-package`에 패키지 추가, 또는 기존 `com.ylove` 하위에 두기.
+  - `context:component-scan` 의 `base-package`에 패키지 추가, 또는 기존 `com.chan` 하위에 두기.
 - **인터셉터 추가**  
   - `RequestMappingHandlerMapping` 의 `interceptors` 리스트에 빈 참조 추가, 또는 `MappedInterceptor` 빈을 더 등록.
 - **관리자 URL 범위 변경**  

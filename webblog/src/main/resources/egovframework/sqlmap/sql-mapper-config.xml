@@ -4,11 +4,11 @@
 <configuration>
     <typeAliases>
 		<typeAlias alias="egovMap" type="org.egovframe.rte.psl.dataaccess.util.EgovMap"/>
-		<typeAlias alias="postVO" type="com.ylove.vo.PostVO"/>
-		<typeAlias alias="uploadFileVO" type="com.ylove.vo.UploadFileVO"/>
-		<typeAlias alias="blogMemberVO" type="com.ylove.vo.BlogMemberVO"/>
-		<typeAlias alias="blacklistWordVO" type="com.ylove.vo.BlacklistWordVO"/>
-		<typeAlias alias="boardVO" type="com.ylove.vo.BoardVO"/>
-		<typeAlias alias="blogUserVO" type="com.ylove.vo.BlogUserVO"/>
+		<typeAlias alias="postVO" type="com.chan.vo.PostVO"/>
+		<typeAlias alias="uploadFileVO" type="com.chan.vo.UploadFileVO"/>
+		<typeAlias alias="blogMemberVO" type="com.chan.vo.BlogMemberVO"/>
+		<typeAlias alias="blacklistWordVO" type="com.chan.vo.BlacklistWordVO"/>
+		<typeAlias alias="boardVO" type="com.chan.vo.BoardVO"/>
+		<typeAlias alias="blogUserVO" type="com.chan.vo.BlogUserVO"/>
     </typeAliases>
 </configuration>

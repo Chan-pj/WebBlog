@@ -10,7 +10,7 @@
 	</bean>
 
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<property name="basePackage" value="com.ylove.mapper" />
+		<property name="basePackage" value="com.chan.mapper" />
 		<property name="sqlSessionFactoryBeanName" value="sqlSession" />
 	</bean>
 
@@ -21,7 +21,7 @@
 	</bean>
 
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<property name="basePackage" value="com.ylove.log" />
+		<property name="basePackage" value="com.chan.log" />
 		<property name="sqlSessionFactoryBeanName" value="logSqlSession" />
 	</bean>
 </beans>

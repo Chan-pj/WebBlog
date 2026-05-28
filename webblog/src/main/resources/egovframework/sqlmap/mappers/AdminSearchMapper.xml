@@ -2,9 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.ylove.mapper.AdminSearchMapper">
+<mapper namespace="com.chan.mapper.AdminSearchMapper">
 
-    <select id="searchUsers" resultType="com.ylove.vo.AdminSearchResultVO">
+    <select id="searchUsers" resultType="com.chan.vo.AdminSearchResultVO">
         SELECT 'USER' as type, user_id as id, nickname as title, email as description
         FROM users
         WHERE nickname LIKE CONCAT('%', #{keyword}, '%')
@@ -12,14 +12,14 @@
         LIMIT #{limit}
     </select>
 
-    <select id="searchBlogs" resultType="com.ylove.vo.AdminSearchResultVO">
+    <select id="searchBlogs" resultType="com.chan.vo.AdminSearchResultVO">
         SELECT 'BLOG' as type, blog_id as id, blog_name as title, description
         FROM blog
         WHERE blog_name LIKE CONCAT('%', #{keyword}, '%')
         LIMIT #{limit}
     </select>
 
-    <select id="searchPosts" resultType="com.ylove.vo.AdminSearchResultVO">
+    <select id="searchPosts" resultType="com.chan.vo.AdminSearchResultVO">
         SELECT 'POST' as type, post_id as id, title, content as description
         FROM post
         WHERE title LIKE CONCAT('%', #{keyword}, '%')

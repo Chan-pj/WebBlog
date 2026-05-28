@@ -53,7 +53,7 @@
 		</property>
 	</bean>
 
-	<bean id="egovHandler" class="com.ylove.config.cmmn.WebBlogDefaultExcepHndlr" />
-	<bean id="otherHandler" class="com.ylove.config.cmmn.WebBlogOthersExcepHndlr" />
+	<bean id="egovHandler" class="com.chan.config.cmmn.WebBlogDefaultExcepHndlr" />
+	<bean id="otherHandler" class="com.chan.config.cmmn.WebBlogOthersExcepHndlr" />
 
 </beans>

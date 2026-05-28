@@ -2,26 +2,26 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.ylove.mapper.ModerationMapper">
+<mapper namespace="com.chan.mapper.ModerationMapper">
 
-    <select id="selectGlobalBlacklist" resultType="com.ylove.vo.BlacklistWordVO">
+    <select id="selectGlobalBlacklist" resultType="com.chan.vo.BlacklistWordVO">
         SELECT * FROM blacklist_word WHERE blog_id IS NULL
     </select>
 
-    <select id="selectBlogBlacklist" resultType="com.ylove.vo.BlacklistWordVO">
+    <select id="selectBlogBlacklist" resultType="com.chan.vo.BlacklistWordVO">
         SELECT * FROM blacklist_word WHERE blog_id = #{blogId}
     </select>
 
-    <select id="selectAllBlacklistWords" resultType="com.ylove.vo.BlacklistWordVO">
+    <select id="selectAllBlacklistWords" resultType="com.chan.vo.BlacklistWordVO">
         SELECT * FROM blacklist_word
     </select>
 
-    <insert id="insertBlacklistWord" parameterType="com.ylove.vo.BlacklistWordVO">
+    <insert id="insertBlacklistWord" parameterType="com.chan.vo.BlacklistWordVO">
         INSERT INTO blacklist_word (word, blog_id)
         VALUES (#{word}, #{blogId})
     </insert>
 
-    <insert id="insertViolation" parameterType="com.ylove.vo.ModerationViolationVO">
+    <insert id="insertViolation" parameterType="com.chan.vo.ModerationViolationVO">
         INSERT INTO moderation_violations (post_id, violation_type, detected_word, created_at)
         VALUES (#{postId}, #{violationType}, #{detectedWord}, NOW())
     </insert>
@@ -34,7 +34,7 @@
         SELECT COUNT(*) FROM moderation_violations WHERE violation_type = #{violationType}
     </select>
 
-    <select id="selectViolationsForReport" resultType="com.ylove.vo.ModerationViolationVO">
+    <select id="selectViolationsForReport" resultType="com.chan.vo.ModerationViolationVO">
         SELECT * FROM moderation_violations ORDER BY created_at DESC LIMIT #{limit}
     </select>
     
