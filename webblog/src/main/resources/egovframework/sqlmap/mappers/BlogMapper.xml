@@ -92,5 +92,9 @@
     	SELECT COUNT(*) FROM blog_member
     	WHERE blog_id=#{blogId} AND user_id=#{userId} AND status='ACTIVE'
 	</select>
+	
+	<select id="selectMembership" resultType="com.ylove.vo.BlogMemberVO">
+    	SELECT * FROM blog_member WHERE blog_id=#{blogId} AND user_id=#{userId}
+	</select>
 
 </mapper>

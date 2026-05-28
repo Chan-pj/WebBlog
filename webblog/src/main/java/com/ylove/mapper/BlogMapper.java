@@ -40,4 +40,6 @@ public interface BlogMapper {
     List<BlogVO> selectPublicBlogs();
     
     int countActiveMembership(@Param("blogId") Long blogId, @Param("userId") Long userId);
+    
+    BlogMemberVO selectMembership(@Param("blogId") Long blogId, @Param("userId") Long userId);
 }
