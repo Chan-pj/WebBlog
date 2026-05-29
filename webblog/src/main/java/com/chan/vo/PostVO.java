@@ -8,62 +8,24 @@ public class PostVO {
     private Long writerUserId;
     private String title;
     private String content;
+    private String writerNickname; // ← 추가
 
-    public Long getPostId() {
-        return postId;
-    }
-
-    public void setPostId(Long postId) {
-        this.postId = postId;
-    }
-
-    public Long getBlogId() {
-        return blogId;
-    }
-
-    public void setBlogId(Long blogId) {
-        this.blogId = blogId;
-    }
-
-    public Long getBoardId() {
-        return boardId;
-    }
-
-    public void setBoardId(Long boardId) {
-        this.boardId = boardId;
-    }
-
-    public Long getParentPostId() {
-        return parentPostId;
-    }
-
-    public void setParentPostId(Long parentPostId) {
-        this.parentPostId = parentPostId;
-    }
-
-    public Long getWriterUserId() {
-        return writerUserId;
-    }
-
-    public void setWriterUserId(Long writerUserId) {
-        this.writerUserId = writerUserId;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
+    public Long getPostId() { return postId; }
+    public void setPostId(Long postId) { this.postId = postId; }
+    public Long getBlogId() { return blogId; }
+    public void setBlogId(Long blogId) { this.blogId = blogId; }
+    public Long getBoardId() { return boardId; }
+    public void setBoardId(Long boardId) { this.boardId = boardId; }
+    public Long getParentPostId() { return parentPostId; }
+    public void setParentPostId(Long parentPostId) { this.parentPostId = parentPostId; }
+    public Long getWriterUserId() { return writerUserId; }
+    public void setWriterUserId(Long writerUserId) { this.writerUserId = writerUserId; }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+    public String getContent() { return content; }
+    public void setContent(String content) { this.content = content; }
+    public String getWriterNickname() { return writerNickname; } // ← 추가
+    public void setWriterNickname(String writerNickname) { this.writerNickname = writerNickname; } // ← 추가
 
     @Override
     public String toString() {
@@ -75,6 +37,7 @@ public class PostVO {
                 ", writerUserId=" + writerUserId +
                 ", title='" + title + '\'' +
                 ", content='" + content + '\'' +
+                ", writerNickname='" + writerNickname + '\'' +
                 '}';
     }
 }

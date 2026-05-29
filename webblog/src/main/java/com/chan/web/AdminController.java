@@ -165,6 +165,18 @@ public class AdminController {
         moderationService.deleteGlobalBlacklistWord(blacklistId);
         return "redirect:/admin/blacklist.do";
     }
+    
+    @PostMapping("/user/delete.do")
+    public String deleteUser(@RequestParam("userId") Long userId) {
+        userService.deleteUser(userId);
+        return "redirect:/admin/dashboard.do";
+    }
+
+    @PostMapping("/blog/delete.do")
+    public String deleteBlog(@RequestParam("blogId") Long blogId) {
+        blogService.deleteBlog(blogId);
+        return "redirect:/admin/blogs.do";
+    }
 
     private static String encodeFilename(String filename) {
         try {

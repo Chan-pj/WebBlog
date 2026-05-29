@@ -5,22 +5,32 @@
 <mapper namespace="com.chan.mapper.BlogMapper">
 
     <resultMap id="blogMap" type="com.chan.vo.BlogVO">
-        <id property="blogId" column="blog_id"/>
-        <result property="ownerUserId" column="owner_user_id"/>
-        <result property="blogName" column="blog_name"/>
-        <result property="isPublic" column="is_public"/>
-        <result property="boardLimit" column="board_limit"/>
-        <result property="imageLimitCount" column="image_limit_count"/>
-        <result property="imageSizeLimitBytes" column="image_size_limit_bytes"/>
-        <result property="fileSizeLimitBytes" column="file_size_limit_bytes"/>
-        <result property="totalCapacityBytes" column="total_capacity_bytes"/>
+    	<id property="blogId" column="blog_id"/>
+    	<result property="ownerUserId" column="owner_user_id"/>
+    	<result property="blogName" column="blog_name"/>
+    	<result property="isPublic" column="is_public"/>
+    	<result property="boardLimit" column="board_limit"/>
+    	<result property="imageLimitCount" column="image_limit_count"/>
+    	<result property="imageSizeLimitBytes" column="image_size_limit_bytes"/>
+    	<result property="fileSizeLimitBytes" column="file_size_limit_bytes"/>
+    	<result property="totalCapacityBytes" column="total_capacity_bytes"/>
+    	<result property="memberCount" column="member_count"/> <!-- ← 추가 -->
+	</resultMap>
+
+    <resultMap id="blogMemberMap" type="com.chan.vo.BlogMemberVO">
+        <id property="memberId" column="member_id"/>
+        <result property="blogId" column="blog_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="memberRole" column="member_role"/>
+        <result property="status" column="status"/>
+        <result property="joinedAt" column="joined_at"/>
     </resultMap>
 
     <insert id="insertBlog" parameterType="com.chan.vo.BlogVO"
         useGeneratedKeys="true" keyProperty="blogId">
-    	INSERT INTO blog (blog_name, owner_user_id, is_public)
-    	VALUES (#{blogName}, #{ownerUserId}, #{isPublic})
-	</insert>
+        INSERT INTO blog (blog_name, owner_user_id, is_public)
+        VALUES (#{blogName}, #{ownerUserId}, #{isPublic})
+    </insert>
 
     <select id="selectBlogById" resultMap="blogMap">
         SELECT * FROM blog WHERE blog_id = #{blogId}
@@ -35,7 +45,13 @@
     </select>
 
     <select id="selectPublicBlogs" resultMap="blogMap">
-        SELECT * FROM blog WHERE is_public = 1 ORDER BY blog_id DESC
+        SELECT b.*,
+           COUNT(m.member_id) AS member_count
+    	FROM blog b
+    	LEFT JOIN blog_member m ON b.blog_id = m.blog_id AND m.status = 'ACTIVE'
+    	WHERE b.is_public = 1
+    	GROUP BY b.blog_id
+    	ORDER BY b.blog_id DESC
     </select>
 
     <update id="updateBlog" parameterType="com.chan.vo.BlogVO">
@@ -48,13 +64,13 @@
         VALUES (#{blogId}, #{userId}, #{status})
     </insert>
 
-    <select id="selectBlogMembers" resultType="com.chan.vo.BlogMemberVO">
+    <select id="selectBlogMembers" resultMap="blogMemberMap">
         SELECT * FROM blog_member WHERE blog_id = #{blogId}
     </select>
 
     <update id="updateBlogMemberStatus" parameterType="com.chan.vo.BlogMemberVO">
         UPDATE blog_member SET status=#{status}
-        WHERE blog_id=#{blogId} AND user_id=#{userId}
+        WHERE member_id=#{memberId}
     </update>
 
     <select id="selectActiveMemberBlogId" resultType="long">
@@ -76,7 +92,7 @@
         SELECT COUNT(*) FROM blog_member WHERE blog_id=#{blogId} AND user_id=#{userId}
     </select>
 
-    <select id="selectBlogMemberByBlogAndUser" resultType="com.chan.vo.BlogMemberVO">
+    <select id="selectBlogMemberByBlogAndUser" resultMap="blogMemberMap">
         SELECT * FROM blog_member WHERE blog_id=#{blogId} AND user_id=#{userId}
     </select>
 
@@ -87,14 +103,18 @@
     <select id="countActiveMembers" resultType="int">
         SELECT COUNT(*) FROM blog_member WHERE status='ACTIVE'
     </select>
-    
+
     <select id="countActiveMembership" resultType="int">
-    	SELECT COUNT(*) FROM blog_member
-    	WHERE blog_id=#{blogId} AND user_id=#{userId} AND status='ACTIVE'
-	</select>
-	
-	<select id="selectMembership" resultType="com.chan.vo.BlogMemberVO">
-    	SELECT * FROM blog_member WHERE blog_id=#{blogId} AND user_id=#{userId}
-	</select>
+        SELECT COUNT(*) FROM blog_member
+        WHERE blog_id=#{blogId} AND user_id=#{userId} AND status='ACTIVE'
+    </select>
+
+    <select id="selectMembership" resultMap="blogMemberMap">
+        SELECT * FROM blog_member WHERE blog_id=#{blogId} AND user_id=#{userId}
+    </select>
+    
+    <delete id="deleteBlog" parameterType="long">
+    	DELETE FROM blog WHERE blog_id = #{blogId}
+	</delete>
 
 </mapper>

@@ -10,17 +10,18 @@
         <result property="writerUserId" column="writer_user_id"/>
         <result property="title" column="title"/>
         <result property="content" column="content"/>
+        <result property="writerNickname" column="writer_nickname"/> <!-- ← 추가 -->
     </resultMap>
 
-    <insert id="insertPost" parameterType="com.chan.vo.PostVO" useGeneratedKeys="true" keyProperty="postId">
+    <insert id="insertPost" parameterType="com.chan.vo.PostVO"
+            useGeneratedKeys="true" keyProperty="postId">
         INSERT INTO post (blog_id, board_id, parent_post_id, writer_user_id, title, content)
         VALUES (#{blogId}, #{boardId}, #{parentPostId}, #{writerUserId}, #{title}, #{content})
     </insert>
 
     <update id="updatePost" parameterType="com.chan.vo.PostVO">
         UPDATE post
-        SET title = #{title},
-            content = #{content}
+        SET title = #{title}, content = #{content}
         WHERE post_id = #{postId}
     </update>
 
@@ -29,20 +30,27 @@
     </delete>
 
     <select id="selectPostById" parameterType="long" resultMap="postMap">
-        SELECT * FROM post WHERE post_id = #{postId}
+        SELECT p.*, u.nickname AS writer_nickname
+        FROM post p
+        LEFT JOIN blog_user u ON p.writer_user_id = u.user_id
+        WHERE p.post_id = #{postId}
     </select>
 
     <select id="selectRootPostsByBoardId" parameterType="long" resultMap="postMap">
-        SELECT * FROM post
-        WHERE board_id = #{boardId}
-          AND parent_post_id IS NULL
-        ORDER BY post_id DESC
+        SELECT p.*, u.nickname AS writer_nickname
+        FROM post p
+        LEFT JOIN blog_user u ON p.writer_user_id = u.user_id
+        WHERE p.board_id = #{boardId}
+          AND p.parent_post_id IS NULL
+        ORDER BY p.post_id DESC
     </select>
 
     <select id="selectRepliesByParentPostId" parameterType="long" resultMap="postMap">
-        SELECT * FROM post
-        WHERE parent_post_id = #{parentPostId}
-        ORDER BY post_id ASC
+        SELECT p.*, u.nickname AS writer_nickname
+        FROM post p
+        LEFT JOIN blog_user u ON p.writer_user_id = u.user_id
+        WHERE p.parent_post_id = #{parentPostId}
+        ORDER BY p.post_id ASC
     </select>
 
 </mapper>

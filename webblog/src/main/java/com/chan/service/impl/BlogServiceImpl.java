@@ -107,16 +107,13 @@ public class BlogServiceImpl implements BlogService {
         if (blogId == null || userId == null) {
             return false;
         }
-
         BlogVO blog = blogMapper.selectBlogById(blogId);
         if (blog == null) {
             return false;
         }
-
         if (userId.equals(blog.getOwnerUserId())) {
             return true;
         }
-
         Integer count = blogMapper.countActiveMembership(blogId, userId);
         return count != null && count > 0;
     }
@@ -174,11 +171,8 @@ public class BlogServiceImpl implements BlogService {
         if (!actingUser.isApproved()) {
             throw new IllegalStateException("승인되지 않은 계정입니다.");
         }
-        if (!actingUser.isCanCreateBlog()) {
+        if (!actingUser.isCanCreateBlog()) {  // ← 이 하나만 남김
             throw new IllegalStateException("블로그 생성 권한이 없습니다.");
-        }
-        if (!"BLOG_ADMIN".equalsIgnoreCase(actingUser.getRole())) {
-            throw new IllegalStateException("블로그 관리자 역할만 블로그를 개설할 수 있습니다.");
         }
         BlogVO exists = blogMapper.selectBlogByOwnerUserId(ownerUserId);
         if (exists != null) {
@@ -216,5 +210,10 @@ public class BlogServiceImpl implements BlogService {
         }
         Integer count = blogMapper.countActiveMembership(blogId, userIdOrNull);
         return count != null && count > 0;
+    }
+    
+    @Override
+    public void deleteBlog(Long blogId) {
+        blogMapper.deleteBlog(blogId);
     }
 }

@@ -46,7 +46,7 @@ public class BlogController {
             return red;
         }
         BlogUserVO u = currentUser(session);
-        if (!"BLOG_ADMIN".equalsIgnoreCase(u.getRole()) || !u.isCanCreateBlog()) {
+        if (!u.isCanCreateBlog()) {  // ← 수정
             model.addAttribute("message", "블로그 개설 권한이 없습니다.");
             return "blog/blogSetupCreate";
         }

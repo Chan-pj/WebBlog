@@ -18,4 +18,5 @@ public interface UserMapper {
     void updateProtection(@Param("userId") Long userId,
                           @Param("managementBlocked") boolean managementBlocked,
                           @Param("profileRestricted") boolean profileRestricted);
+    void deleteUser(Long userId);
 }

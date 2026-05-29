@@ -74,4 +74,10 @@ public class UserServiceImpl implements UserService {
     public void updateProtection(Long userId, boolean managementBlocked, boolean profileRestricted) {
         userMapper.updateProtection(userId, managementBlocked, profileRestricted);
     }
+    
+    @Override
+    @Transactional
+    public void deleteUser(Long userId) {
+        userMapper.deleteUser(userId);
+    }
 }

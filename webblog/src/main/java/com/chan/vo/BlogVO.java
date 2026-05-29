@@ -97,4 +97,9 @@ public class BlogVO {
                 ", totalCapacityBytes=" + totalCapacityBytes +
                 '}';
     }
+    
+    private int memberCount; // ← 추가
+
+    public int getMemberCount() { return memberCount; }
+    public void setMemberCount(int memberCount) { this.memberCount = memberCount; }
 }

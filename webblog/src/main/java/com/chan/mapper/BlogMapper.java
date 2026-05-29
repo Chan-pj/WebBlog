@@ -42,4 +42,6 @@ public interface BlogMapper {
     int countActiveMembership(@Param("blogId") Long blogId, @Param("userId") Long userId);
     
     BlogMemberVO selectMembership(@Param("blogId") Long blogId, @Param("userId") Long userId);
+    
+    void deleteBlog(Long blogId);
 }
