@@ -67,4 +67,9 @@ public class BlogMemberVO {
                 ", joinedAt='" + joinedAt + '\'' +
                 '}';
     }
+    
+    private String nickname; // ← 추가
+
+    public String getNickname() { return nickname; }
+    public void setNickname(String nickname) { this.nickname = nickname; }
 }

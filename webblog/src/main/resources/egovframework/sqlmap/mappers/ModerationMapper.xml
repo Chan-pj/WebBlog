@@ -4,15 +4,30 @@
 
 <mapper namespace="com.chan.mapper.ModerationMapper">
 
-    <select id="selectGlobalBlacklist" resultType="com.chan.vo.BlacklistWordVO">
+    <resultMap id="blacklistWordMap" type="com.chan.vo.BlacklistWordVO">
+        <id property="blacklistId" column="blacklist_id"/>
+        <result property="blogId" column="blog_id"/>
+        <result property="word" column="word"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <resultMap id="violationMap" type="com.chan.vo.ModerationViolationVO">
+        <id property="violationId" column="violation_id"/>
+        <result property="postId" column="post_id"/>
+        <result property="violationType" column="violation_type"/>
+        <result property="detectedWord" column="detected_word"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <select id="selectGlobalBlacklist" resultMap="blacklistWordMap">
         SELECT * FROM blacklist_word WHERE blog_id IS NULL
     </select>
 
-    <select id="selectBlogBlacklist" resultType="com.chan.vo.BlacklistWordVO">
+    <select id="selectBlogBlacklist" resultMap="blacklistWordMap">
         SELECT * FROM blacklist_word WHERE blog_id = #{blogId}
     </select>
 
-    <select id="selectAllBlacklistWords" resultType="com.chan.vo.BlacklistWordVO">
+    <select id="selectAllBlacklistWords" resultMap="blacklistWordMap">
         SELECT * FROM blacklist_word
     </select>
 
@@ -34,17 +49,17 @@
         SELECT COUNT(*) FROM moderation_violations WHERE violation_type = #{violationType}
     </select>
 
-    <select id="selectViolationsForReport" resultType="com.chan.vo.ModerationViolationVO">
+    <select id="selectViolationsForReport" resultMap="violationMap">
         SELECT * FROM moderation_violations ORDER BY created_at DESC LIMIT #{limit}
     </select>
-    
+
     <delete id="deleteGlobalBlacklistWord">
-        DELETE FROM blacklist_words
+        DELETE FROM blacklist_word
         WHERE blacklist_id = #{blacklistId} AND blog_id IS NULL
     </delete>
 
     <delete id="deleteBlogBlacklistWord">
-        DELETE FROM blacklist_words
+        DELETE FROM blacklist_word
         WHERE blacklist_id = #{blacklistId} AND blog_id = #{blogId}
     </delete>
 

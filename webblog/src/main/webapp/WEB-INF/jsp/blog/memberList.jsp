@@ -53,7 +53,7 @@
     <thead>
         <tr>
             <th>멤버 ID</th>
-            <th>사용자 ID</th>
+            <th>닉네임</th>
             <th>역할</th>
             <th>현재 상태</th>
             <th>상태 변경</th>
@@ -63,7 +63,7 @@
         <c:forEach var="member" items="${members}">
             <tr>
                 <td>${member.memberId}</td>
-                <td>${member.userId}</td>
+                <td>${member.nickname}</td>
                 <td>${member.memberRole}</td>
                 <td>
                     <span class="status-badge status-${member.status}">
