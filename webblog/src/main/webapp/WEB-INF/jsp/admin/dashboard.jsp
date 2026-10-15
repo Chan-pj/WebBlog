@@ -153,7 +153,7 @@
                             <form method="post"
                                   action="${pageContext.request.contextPath}/admin/blog/delete.do"
                                   style="display:inline;"
-                                  onsubmit="return confirm('블로그를 삭제할까요?');">
+                                  onsubmit="return confirm('블로그를 삭제할까요?\n블로그의 모든 게시판·게시글·멤버 정보가 함께 삭제됩니다.');">
                                 <input type="hidden" name="blogId" value="${blog.blogId}"/>
                                 <button type="submit" class="ad-del-btn">삭제</button>
                             </form>
@@ -240,7 +240,7 @@
                             <div class="ad-action-row">
                                 <form method="post"
                                       action="${pageContext.request.contextPath}/admin/user/delete.do"
-                                      onsubmit="return confirm('회원을 삭제할까요?');">
+                                      onsubmit="return confirm('회원을 삭제할까요?\n회원이 소유한 블로그(모든 글 포함)와 회원이 쓴 글이 함께 삭제됩니다.');">
                                     <input type="hidden" name="userId" value="${user.userId}"/>
                                     <button type="submit" class="ad-del-btn">삭제</button>
                                 </form>

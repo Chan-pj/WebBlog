@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.chan.mapper.BlogMapper;
 import com.chan.mapper.BoardMapper;
+import com.chan.mapper.PostMapper;
 import com.chan.service.BlogService;
 import com.chan.vo.BlogMemberVO;
 import com.chan.vo.BlogUserVO;
@@ -28,6 +29,9 @@ public class BlogServiceImpl implements BlogService {
 
     @Resource
     private BoardMapper boardMapper;
+
+    @Resource
+    private PostMapper postMapper;
 
     @Override
     public BlogVO createDefaultBlog(Long ownerUserId, String nickname) {
@@ -227,6 +231,10 @@ public class BlogServiceImpl implements BlogService {
     
     @Override
     public void deleteBlog(Long blogId) {
+        // post.board_id 가 ON DELETE RESTRICT 라 blog 의 CASCADE 에만 맡기면 FK 오류가 날 수 있어
+        // 글 → 게시판 → 블로그 순으로 직접 지운다. (멤버·금지어는 blog CASCADE, 위반 기록은 SET NULL)
+        postMapper.deletePostsByBlogId(blogId);
+        boardMapper.deleteBoardsByBlogId(blogId);
         blogMapper.deleteBlog(blogId);
     }
 }

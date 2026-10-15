@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -167,7 +168,11 @@ public class AdminController {
     }
     
     @PostMapping("/user/delete.do")
-    public String deleteUser(@RequestParam("userId") Long userId) {
+    public String deleteUser(@RequestParam("userId") Long userId, HttpSession session) {
+        Object me = session.getAttribute("loginUser");
+        if (me instanceof BlogUserVO && userId.equals(((BlogUserVO) me).getUserId())) {
+            return "redirect:/admin/dashboard.do";
+        }
         userService.deleteUser(userId);
         return "redirect:/admin/dashboard.do";
     }

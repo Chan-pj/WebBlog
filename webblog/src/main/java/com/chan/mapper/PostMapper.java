@@ -14,6 +14,10 @@ public interface PostMapper {
 
     int deletePost(Long postId);
 
+    int deletePostsByBlogId(Long blogId);
+
+    int deletePostsByWriterUserId(Long writerUserId);
+
     PostVO selectPostById(Long postId);
 
     List<PostVO> selectRootPostsByBoardId(Long boardId);

@@ -146,6 +146,8 @@ flowchart BT
 - **위반 기록**: 금지어·개인정보로 차단된 등록 시도를 `moderation_violations`에 기록(별도 트랜잭션)
 - **DB 스크립트**: `05_moderation_violations_and_access_log.sql`, `06_promote_super_admin.sql` 추가
 - **메뉴**: 「블로그 개설」 노출 조건을 `can_create_blog` 기준으로 변경(`BLOG_ADMIN` 역할 조건 제거)
+- **회원·블로그 삭제**: FK(`ON DELETE RESTRICT`) 오류로 실패하던 문제 수정 — 글 → 게시판 → 블로그(→ 회원) 순으로 한 트랜잭션에서 삭제, 관리자 본인 계정 삭제 차단
+- **세션 갱신**: 승인·권한 변경이 재로그인 전까지 반영되지 않던 문제 수정(`SessionUserRefreshInterceptor`)
 
 ### 2026-05
 
@@ -183,7 +185,7 @@ flowchart BT
 
 1. DB 스크립트 순서대로 실행: `00` → `01` → **`05_moderation_violations_and_access_log.sql`**  
    - 기존 DB였다면 `03_migrate_to_super_admin_model.sql`에 이어 **`04_board_reply_and_member_unique.sql`**, **`05`** 실행
-2. **슈퍼 관리자 지정**: 관리자로 쓸 카카오 계정으로 한 번 로그인(승인 대기 화면이 보이면 정상) → `06_promote_super_admin.sql`의 `@kakao_id`를 바꿔 실행 → 로그아웃 후 다시 로그인  
+2. **슈퍼 관리자 지정**: 관리자로 쓸 카카오 계정으로 한 번 로그인(승인 대기 화면이 보이면 정상) → `06_promote_super_admin.sql`의 `@kakao_id`를 바꿔 실행 → 새로고침하면 바로 관리자 메뉴가 보임  
    - `02_seed_admin_optional.sql`의 시드 계정(`admin@example.com`)은 이메일 로그인이 제거되어 더 이상 로그인할 수 없습니다.
 3. 슈퍼 관리자로 `/admin/dashboard.do`에서 신규 회원 **승인** 체크 및 권한 부여
 4. **블로그를 운영할 사람**에게는 **`can_create_blog`** 를 켜 주고, 게시판까지 쓰게 하려면 **`can_create_board`** 도 켜 줍니다.  
@@ -564,7 +566,7 @@ mysql -u root -p < src/main/resources/db/mariadb/05_moderation_violations_and_ac
 ```
 
 **4단계(슈퍼 관리자 지정)**  
-관리자 화면(`/admin/**`)은 세션 사용자의 `role`이 **`SUPER_ADMIN`** 이어야 합니다. 로그인은 카카오만 지원하므로, 관리자로 쓸 카카오 계정으로 먼저 한 번 로그인한 뒤 `06_promote_super_admin.sql`의 `@kakao_id`를 그 계정 값으로 바꿔 실행하고, 로그아웃 후 다시 로그인합니다.  
+관리자 화면(`/admin/**`)은 세션 사용자의 `role`이 **`SUPER_ADMIN`** 이어야 합니다. 로그인은 카카오만 지원하므로, 관리자로 쓸 카카오 계정으로 먼저 한 번 로그인한 뒤 `06_promote_super_admin.sql`의 `@kakao_id`를 그 계정 값으로 바꿔 실행합니다(재로그인 없이 다음 요청부터 반영).  
 (`02_seed_admin_optional.sql`의 이메일 시드 계정으로는 더 이상 로그인할 수 없습니다.)
 
 **권한 요약**
@@ -842,7 +844,7 @@ mvn package
 ## 9) 인증/권한 동작 요약
 
 - 로그인은 카카오 OAuth만 사용. 로그인 성공 시 세션 키 `loginUser`에 `BlogUserVO` 저장
-- 세션의 `BlogUserVO`는 로그인 시점 값이므로, 관리자가 승인·권한을 바꾼 뒤에는 사용자가 다시 로그인해야 반영됨
+- `SessionUserRefreshInterceptor`가 매 요청마다 세션의 `BlogUserVO`를 DB 값으로 다시 읽음 → 관리자가 승인·권한·역할을 바꾸면 재로그인 없이 바로 반영, 삭제된 회원은 자동 로그아웃
 - **`SUPER_ADMIN`**: 항상 `/admin/dashboard.do` 등 관리 화면 이용 가능(시드 시 `is_approved=1` 권장)
 - **그 외 역할**: `is_approved == false` 이면 소유 블로그·멤버 블로그가 있어도 **승인 대기 화면**(`auth/pendingApproval`)으로 보내지며, 글쓰기·블로그 개설 등은 승인된 세션에서만 허용
 - 메뉴(`layout/menu.jsp`)는 `sessionScope.loginUser` 존재·승인·`can_create_blog`에 따라 **블로그 찾기·블로그 개설** 링크 표시
@@ -919,7 +921,6 @@ flowchart TD
 ## 13) 향후 개선 권장사항
 
 - POST 요청 CSRF 토큰 적용
-- 관리자 승인·권한 변경 시 세션 사용자 정보 갱신
 - 세션 고정 공격 방어(로그인 시 세션 재생성)
 - OAuth 에러 상세 로깅/예외 분리
 - DB 접속정보 외부 설정화 (`.properties`/환경변수)

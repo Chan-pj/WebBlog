@@ -36,4 +36,8 @@
         SELECT COUNT(*) FROM post WHERE board_id = #{boardId}
     </select>
 
+    <delete id="deleteBoardsByBlogId" parameterType="long">
+        DELETE FROM board WHERE blog_id = #{blogId}
+    </delete>
+
 </mapper>

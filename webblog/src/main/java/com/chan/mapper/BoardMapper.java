@@ -20,4 +20,6 @@ public interface BoardMapper {
     int deleteBoardById(@Param("boardId") Long boardId, @Param("blogId") Long blogId);
 
     int countPostsByBoardId(Long boardId);
+
+    int deleteBoardsByBlogId(Long blogId);
 }

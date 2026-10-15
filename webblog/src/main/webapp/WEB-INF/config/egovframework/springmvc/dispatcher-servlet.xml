@@ -22,7 +22,22 @@
         <property name="interceptors">
             <list>
                 <ref bean="localeChangeInterceptor" />
-                <ref bean="adminAuthInterceptor" />
+                <!-- 세션 사용자 갱신이 관리자 권한 검사보다 먼저 실행되어야 함 -->
+                <ref bean="sessionUserRefreshInterceptor" />
+                <!-- 최상위 MappedInterceptor 빈은 Spring 이 목록보다 앞에 자동 등록하므로 내부 빈으로 둔다 -->
+                <bean class="org.springframework.web.servlet.handler.MappedInterceptor">
+                    <constructor-arg>
+                        <array>
+                            <value>/admin/**</value>
+                        </array>
+                    </constructor-arg>
+                    <constructor-arg>
+                        <array/>
+                    </constructor-arg>
+                    <constructor-arg>
+                        <bean class="com.chan.web.interceptor.AdminAuthInterceptor"/>
+                    </constructor-arg>
+                </bean>
             </list>
         </property>
     </bean>
@@ -33,18 +48,8 @@
         <property name="paramName" value="language" />
     </bean>
     
-    <bean id="adminAuthInterceptor" class="org.springframework.web.servlet.handler.MappedInterceptor">
-        <constructor-arg>
-            <array>
-                <value>/admin/**</value>
-            </array>
-        </constructor-arg>
-        <constructor-arg>
-            <array/>
-        </constructor-arg>
-        <constructor-arg>
-            <bean class="com.chan.web.interceptor.AdminAuthInterceptor"/>
-        </constructor-arg>
+    <bean id="sessionUserRefreshInterceptor" class="com.chan.web.interceptor.SessionUserRefreshInterceptor">
+        <constructor-arg ref="userService"/>
     </bean>
 
     <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">

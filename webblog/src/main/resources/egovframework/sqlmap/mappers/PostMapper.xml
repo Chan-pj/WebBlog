@@ -29,6 +29,15 @@
         DELETE FROM post WHERE post_id = #{postId}
     </delete>
 
+    <!-- 답글은 fk_post_parent(ON DELETE CASCADE)로 함께 삭제됨 -->
+    <delete id="deletePostsByBlogId" parameterType="long">
+        DELETE FROM post WHERE blog_id = #{blogId}
+    </delete>
+
+    <delete id="deletePostsByWriterUserId" parameterType="long">
+        DELETE FROM post WHERE writer_user_id = #{writerUserId}
+    </delete>
+
     <select id="selectPostById" parameterType="long" resultMap="postMap">
         SELECT p.*, u.nickname AS writer_nickname
         FROM post p
