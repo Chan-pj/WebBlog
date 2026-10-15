@@ -1,5 +1,8 @@
 package com.chan.service.impl;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -142,7 +145,18 @@ public class AdminSearchServiceImpl implements AdminSearchService {
         } else if (row.getBlogId() != null) {
             row.setDetailUrl("/blog/" + row.getBlogId() + "/view.do");
         } else if (row.getUserId() != null) {
-            row.setDetailUrl("/admin/search.do?searchType=USER&keyword=" + row.getUserEmail());
+            row.setDetailUrl("/admin/search.do?searchType=USER&keyword=" + urlEncode(row.getUserEmail()));
+        }
+    }
+
+    private static String urlEncode(String value) {
+        if (value == null) {
+            return "";
+        }
+        try {
+            return URLEncoder.encode(value, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            return value;
         }
     }
 }

@@ -13,10 +13,18 @@
 
     <resultMap id="violationMap" type="com.chan.vo.ModerationViolationVO">
         <id property="violationId" column="violation_id"/>
-        <result property="postId" column="post_id"/>
+        <result property="blogId" column="blog_id"/>
+        <result property="boardId" column="board_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="writerIp" column="writer_ip"/>
         <result property="violationType" column="violation_type"/>
-        <result property="detectedWord" column="detected_word"/>
+        <result property="matchedWord" column="matched_word"/>
+        <result property="attemptedTitle" column="attempted_title"/>
+        <result property="attemptedSnippet" column="attempted_snippet"/>
         <result property="createdAt" column="created_at"/>
+        <result property="userNickname" column="user_nickname"/>
+        <result property="userEmail" column="user_email"/>
+        <result property="blogName" column="blog_name"/>
     </resultMap>
 
     <select id="selectGlobalBlacklist" resultMap="blacklistWordMap">
@@ -37,8 +45,12 @@
     </insert>
 
     <insert id="insertViolation" parameterType="com.chan.vo.ModerationViolationVO">
-        INSERT INTO moderation_violations (post_id, violation_type, detected_word, created_at)
-        VALUES (#{postId}, #{violationType}, #{detectedWord}, NOW())
+        INSERT INTO moderation_violations
+            (blog_id, board_id, user_id, writer_ip, violation_type, matched_word,
+             attempted_title, attempted_snippet, created_at)
+        VALUES
+            (#{blogId}, #{boardId}, #{userId}, #{writerIp}, #{violationType}, #{matchedWord},
+             #{attemptedTitle}, #{attemptedSnippet}, NOW())
     </insert>
 
     <select id="countViolations" resultType="int">
@@ -50,7 +62,17 @@
     </select>
 
     <select id="selectViolationsForReport" resultMap="violationMap">
-        SELECT * FROM moderation_violations ORDER BY created_at DESC LIMIT #{limit}
+        SELECT v.violation_id, v.blog_id, v.board_id, v.user_id, v.writer_ip,
+               v.violation_type, v.matched_word, v.attempted_title, v.attempted_snippet,
+               DATE_FORMAT(v.created_at, '%Y-%m-%d %H:%i:%s') AS created_at,
+               u.nickname AS user_nickname,
+               u.email    AS user_email,
+               b.blog_name
+        FROM moderation_violations v
+        LEFT JOIN blog_user u ON v.user_id = u.user_id
+        LEFT JOIN blog b      ON v.blog_id = b.blog_id
+        ORDER BY v.created_at DESC, v.violation_id DESC
+        LIMIT #{limit}
     </select>
 
     <delete id="deleteGlobalBlacklistWord">

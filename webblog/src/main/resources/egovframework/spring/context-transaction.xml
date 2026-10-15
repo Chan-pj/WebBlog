@@ -12,6 +12,8 @@
 
 	<tx:advice id="txAdvice" transaction-manager="txManager">
 		<tx:attributes>
+			<!-- 차단 시도 기록은 글 등록이 롤백돼도 남아야 하므로 별도 트랜잭션 -->
+			<tx:method name="recordViolation" propagation="REQUIRES_NEW"/>
 			<tx:method name="*" rollback-for="Exception"/>
 		</tx:attributes>
 	</tx:advice>

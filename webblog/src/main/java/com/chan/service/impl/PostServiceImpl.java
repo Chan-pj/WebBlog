@@ -10,6 +10,7 @@ import com.chan.mapper.PostMapper;
 import com.chan.service.BlogService;
 import com.chan.service.ModerationService;
 import com.chan.service.PostService;
+import com.chan.vo.ModerationViolationVO;
 import com.chan.vo.PostVO;
 
 @Service("postService")
@@ -84,12 +85,34 @@ public class PostServiceImpl implements PostService {
     private void validateContent(PostVO post) {
         String merged = post.getTitle() + " " + post.getContent();
 
-        if (moderationService.containsBlockedWord(post.getBlogId(), merged)) {
+        String blockedWord = moderationService.findBlockedWord(post.getBlogId(), merged);
+        if (blockedWord != null) {
+            recordViolation(post, "BLOCKED_WORD", blockedWord);
             throw new IllegalArgumentException("금지 단어가 포함된 게시글은 등록할 수 없습니다.");
         }
 
         if (moderationService.containsPersonalInfo(merged)) {
+            recordViolation(post, "PERSONAL_INFO", null);
             throw new IllegalArgumentException("개인정보가 포함된 게시글은 등록할 수 없습니다.");
         }
+    }
+
+    private void recordViolation(PostVO post, String violationType, String matchedWord) {
+        ModerationViolationVO v = new ModerationViolationVO();
+        v.setBlogId(post.getBlogId());
+        v.setBoardId(post.getBoardId());
+        v.setUserId(post.getWriterUserId());
+        v.setViolationType(violationType);
+        v.setMatchedWord(matchedWord);
+        v.setAttemptedTitle(truncate(post.getTitle(), 500));
+        v.setAttemptedSnippet(truncate(post.getContent(), 1000));
+        moderationService.recordViolation(v);
+    }
+
+    private static String truncate(String s, int max) {
+        if (s == null || s.length() <= max) {
+            return s;
+        }
+        return s.substring(0, max);
     }
 }

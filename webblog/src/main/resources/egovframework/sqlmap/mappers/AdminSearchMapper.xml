@@ -4,25 +4,102 @@
 
 <mapper namespace="com.chan.mapper.AdminSearchMapper">
 
-    <select id="searchUsers" resultType="com.chan.vo.AdminSearchResultVO">
-        SELECT 'USER' as type, user_id as id, nickname as title, email as description
-        FROM users
-        WHERE nickname LIKE CONCAT('%', #{keyword}, '%')
-           OR email LIKE CONCAT('%', #{keyword}, '%')
+    <!-- likeKeyword / likeWord 는 SearchTextUtil.toLikeKeyword 로 이스케이프된 '%...%' 값 -->
+
+    <select id="searchPosts" parameterType="map" resultType="com.chan.vo.AdminSearchResultVO">
+        SELECT 'POST'          AS resultType,
+               p.post_id       AS postId,
+               p.board_id      AS boardId,
+               p.blog_id       AS blogId,
+               b.blog_name     AS blogName,
+               u.user_id       AS userId,
+               u.nickname      AS userNickname,
+               u.email         AS userEmail,
+               p.title         AS title,
+               LEFT(p.content, 150) AS snippet
+        FROM post p
+        LEFT JOIN blog b      ON p.blog_id = b.blog_id
+        LEFT JOIN blog_user u ON p.writer_user_id = u.user_id
+        WHERE p.title LIKE #{likeKeyword}
+           OR p.content LIKE #{likeKeyword}
+        ORDER BY p.post_id DESC
         LIMIT #{limit}
     </select>
 
-    <select id="searchBlogs" resultType="com.chan.vo.AdminSearchResultVO">
-        SELECT 'BLOG' as type, blog_id as id, blog_name as title, description
-        FROM blog
-        WHERE blog_name LIKE CONCAT('%', #{keyword}, '%')
+    <select id="searchUsers" parameterType="map" resultType="com.chan.vo.AdminSearchResultVO">
+        SELECT 'USER'      AS resultType,
+               u.user_id   AS userId,
+               u.nickname  AS userNickname,
+               u.email     AS userEmail,
+               u.role      AS title
+        FROM blog_user u
+        WHERE u.nickname LIKE #{likeKeyword}
+           OR u.email LIKE #{likeKeyword}
+        ORDER BY u.user_id DESC
         LIMIT #{limit}
     </select>
 
-    <select id="searchPosts" resultType="com.chan.vo.AdminSearchResultVO">
-        SELECT 'POST' as type, post_id as id, title, content as description
-        FROM post
-        WHERE title LIKE CONCAT('%', #{keyword}, '%')
+    <select id="searchBlogs" parameterType="map" resultType="com.chan.vo.AdminSearchResultVO">
+        SELECT 'BLOG'       AS resultType,
+               b.blog_id    AS blogId,
+               b.blog_name  AS blogName,
+               u.user_id    AS userId,
+               u.nickname   AS userNickname,
+               u.email      AS userEmail,
+               b.blog_name  AS title
+        FROM blog b
+        LEFT JOIN blog_user u ON b.owner_user_id = u.user_id
+        WHERE b.blog_name LIKE #{likeKeyword}
+        ORDER BY b.blog_id DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="searchPostsByForbiddenWord" parameterType="map" resultType="com.chan.vo.AdminSearchResultVO">
+        SELECT 'FORBIDDEN'     AS resultType,
+               p.post_id       AS postId,
+               p.board_id      AS boardId,
+               p.blog_id       AS blogId,
+               b.blog_name     AS blogName,
+               u.user_id       AS userId,
+               u.nickname      AS userNickname,
+               u.email         AS userEmail,
+               p.title         AS title,
+               p.content       AS snippet,
+               #{word}         AS matchedWord
+        FROM post p
+        LEFT JOIN blog b      ON p.blog_id = b.blog_id
+        LEFT JOIN blog_user u ON p.writer_user_id = u.user_id
+        WHERE p.title LIKE #{likeWord}
+           OR p.content LIKE #{likeWord}
+        ORDER BY p.post_id DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="searchViolations" parameterType="map" resultType="com.chan.vo.AdminSearchResultVO">
+        SELECT 'VIOLATION'          AS resultType,
+               v.blog_id            AS blogId,
+               b.blog_name          AS blogName,
+               v.board_id           AS boardId,
+               v.user_id            AS userId,
+               u.nickname           AS userNickname,
+               u.email              AS userEmail,
+               v.attempted_title    AS title,
+               v.attempted_snippet  AS snippet,
+               v.matched_word       AS matchedWord,
+               v.writer_ip          AS writerIp,
+               DATE_FORMAT(v.created_at, '%Y-%m-%d %H:%i:%s') AS createdAt
+        FROM moderation_violations v
+        LEFT JOIN blog b      ON v.blog_id = b.blog_id
+        LEFT JOIN blog_user u ON v.user_id = u.user_id
+        <where>
+            <if test="likeKeyword != null">
+                v.matched_word LIKE #{likeKeyword}
+                OR v.attempted_title LIKE #{likeKeyword}
+                OR u.nickname LIKE #{likeKeyword}
+                OR u.email LIKE #{likeKeyword}
+            </if>
+        </where>
+        ORDER BY v.created_at DESC, v.violation_id DESC
         LIMIT #{limit}
     </select>
 

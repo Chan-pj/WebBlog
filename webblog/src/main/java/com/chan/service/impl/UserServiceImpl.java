@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
         user.setKakaoId(kakaoId);
         user.setEmail(email);
         user.setNickname(nickname);
-        user.setRole("USER");
+        user.setRole("BLOG_MEMBER");
         user.setUseKakaoAuth(true);
         userMapper.insertUser(user);
         return user;

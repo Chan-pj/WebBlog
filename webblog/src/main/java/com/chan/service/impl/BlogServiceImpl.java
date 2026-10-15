@@ -1,6 +1,9 @@
 package com.chan.service.impl;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -16,6 +19,9 @@ import com.chan.vo.BoardVO;
 
 @Service("blogService")
 public class BlogServiceImpl implements BlogService {
+
+    private static final Set<String> MEMBER_STATUSES =
+            new HashSet<>(Arrays.asList("ACTIVE", "PENDING", "BLOCKED"));
 
     @Resource
     private BlogMapper blogMapper;
@@ -79,6 +85,12 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public void changeMemberStatus(BlogMemberVO member) {
+        if (member == null || member.getBlogId() == null || member.getMemberId() == null) {
+            throw new IllegalArgumentException("잘못된 요청입니다.");
+        }
+        if (!MEMBER_STATUSES.contains(member.getStatus())) {
+            throw new IllegalArgumentException("허용되지 않은 멤버 상태입니다.");
+        }
         blogMapper.updateBlogMemberStatus(member);
     }
 
@@ -151,6 +163,7 @@ public class BlogServiceImpl implements BlogService {
             }
             BlogMemberVO upd = new BlogMemberVO();
             upd.setMemberId(existing.getMemberId());
+            upd.setBlogId(blogId);
             upd.setStatus("ACTIVE");
             blogMapper.updateBlogMemberStatus(upd);
             return;

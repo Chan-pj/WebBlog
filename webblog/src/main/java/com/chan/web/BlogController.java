@@ -241,8 +241,13 @@ public class BlogController {
         }
         BlogMemberVO member = new BlogMemberVO();
         member.setMemberId(memberId);
+        member.setBlogId(blogId);
         member.setStatus(status);
-        blogService.changeMemberStatus(member);
+        try {
+            blogService.changeMemberStatus(member);
+        } catch (IllegalArgumentException ex) {
+            return "redirect:/blog/" + blogId + "/members.do?error=status";
+        }
         return "redirect:/blog/" + blogId + "/members.do";
     }
 

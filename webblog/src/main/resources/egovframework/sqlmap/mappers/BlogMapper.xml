@@ -74,7 +74,7 @@
 
     <update id="updateBlogMemberStatus" parameterType="com.chan.vo.BlogMemberVO">
         UPDATE blog_member SET status=#{status}
-        WHERE member_id=#{memberId}
+        WHERE member_id=#{memberId} AND blog_id=#{blogId}
     </update>
 
     <select id="selectActiveMemberBlogId" resultType="long">

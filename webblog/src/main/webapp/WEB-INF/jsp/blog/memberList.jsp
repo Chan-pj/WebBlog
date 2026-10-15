@@ -49,6 +49,10 @@
     <a href="${pageContext.request.contextPath}/blog/${blogId}/view.do">블로그로 돌아가기</a>
 </div>
 
+<c:if test="${param.error eq 'status'}">
+    <p style="color:#791f1f; font-size:13px;">멤버 상태를 변경할 수 없습니다.</p>
+</c:if>
+
 <table class="ml-table">
     <thead>
         <tr>
