@@ -112,6 +112,7 @@
                 <form method="post"
                       action="${pageContext.request.contextPath}/blog/${blog.blogId}/join.do"
                       style="margin:0;">
+                    <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"/>
                     <button type="submit" class="blog-join-btn">멤버 가입</button>
                 </form>
             </c:if>

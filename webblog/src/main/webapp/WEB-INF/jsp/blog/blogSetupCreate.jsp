@@ -6,6 +6,7 @@
 </c:if>
 <p>슈퍼 관리자가 블로그 생성 권한을 부여한 <strong>블로그 관리자</strong>만 개설할 수 있습니다.</p>
 <form method="post" action="${pageContext.request.contextPath}/blog/setup/create.do">
+    <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"/>
     블로그 이름: <input type="text" name="blogName" placeholder="미입력 시 닉네임 기반으로 생성" style="width:100%;max-width:420px;box-sizing:border-box;"/><br/><br/>
     <button type="submit">개설</button>
 </form>

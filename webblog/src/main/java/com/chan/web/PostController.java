@@ -144,6 +144,17 @@ public class PostController {
         if (board == null || !blogId.equals(board.getBlogId())) {
             return "redirect:/";
         }
+        if (!blogService.canReadBlog(blogId, loginUser.getUserId())) {
+            return "redirect:/auth/login.do?error=forbidden";
+        }
+        // 답글은 블로그 소유자만 작성할 수 있다. (PostServiceImpl 에서도 재검증)
+        if (!blogService.isBlogOwner(blogId, loginUser.getUserId())) {
+            return "redirect:/post/view/" + parentPostId + ".do?error=forbidden";
+        }
+        PostVO parent = postService.getPostById(parentPostId);
+        if (parent == null || !blogId.equals(parent.getBlogId()) || !boardId.equals(parent.getBoardId())) {
+            return "redirect:/post/" + blogId + "/board/" + boardId + "/list.do";
+        }
         PostVO post = new PostVO();
         post.setBlogId(blogId);
         post.setBoardId(boardId);

@@ -80,6 +80,7 @@
 
     <form method="post"
           action="${pageContext.request.contextPath}/admin/blacklist/add.do">
+        <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"/>
         <div class="bl-add-row">
             <input type="text" name="word" required maxlength="200" placeholder="금지어 입력"/>
             <button type="submit" class="bl-add-btn">추가</button>
@@ -110,6 +111,7 @@
                                 <form method="post"
                                       action="${pageContext.request.contextPath}/admin/blacklist/delete.do"
                                       style="display:inline;">
+                                    <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"/>
                                     <input type="hidden" name="blacklistId" value="${w.blacklistId}"/>
                                     <button type="submit" class="bl-del-btn">삭제</button>
                                 </form>

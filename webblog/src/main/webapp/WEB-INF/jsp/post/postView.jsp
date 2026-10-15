@@ -16,6 +16,7 @@
 <c:if test="${canManagePost}">
     <h3>수정</h3>
     <form method="post" action="${pageContext.request.contextPath}/post/update.do">
+        <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"/>
         <input type="hidden" name="postId" value="${post.postId}"/>
         제목: <input type="text" name="title" value="<c:out value='${post.title}'/>" style="width:100%;max-width:520px;box-sizing:border-box;"/><br/><br/>
         내용:<br/>
@@ -23,6 +24,7 @@
         <button type="submit">저장</button>
     </form>
     <form method="post" action="${pageContext.request.contextPath}/post/delete.do" style="margin-top:12px;" onsubmit="return confirm('삭제할까요?');">
+        <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"/>
         <input type="hidden" name="postId" value="${post.postId}"/>
         <input type="hidden" name="blogId" value="${post.blogId}"/>
         <input type="hidden" name="boardId" value="${post.boardId}"/>
@@ -43,6 +45,7 @@
 <c:if test="${canReply}">
     <h3>답글 작성 (관리자 전용)</h3>
     <form method="post" action="${pageContext.request.contextPath}/post/${post.blogId}/board/${post.boardId}/reply.do">
+        <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"/>
         <input type="hidden" name="parentPostId" value="${post.postId}"/>
         제목: <input type="text" name="title" placeholder="답글" style="width:100%;max-width:520px;box-sizing:border-box;"/><br/><br/>
         내용:<br/>

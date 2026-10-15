@@ -148,6 +148,8 @@ flowchart BT
 - **메뉴**: 「블로그 개설」 노출 조건을 `can_create_blog` 기준으로 변경(`BLOG_ADMIN` 역할 조건 제거)
 - **회원·블로그 삭제**: FK(`ON DELETE RESTRICT`) 오류로 실패하던 문제 수정 — 글 → 게시판 → 블로그(→ 회원) 순으로 한 트랜잭션에서 삭제, 관리자 본인 계정 삭제 차단
 - **세션 갱신**: 승인·권한 변경이 재로그인 전까지 반영되지 않던 문제 수정(`SessionUserRefreshInterceptor`)
+- **CSRF 방어**: `CsrfTokenInterceptor` 추가 — 세션당 토큰 발급, POST 요청은 `_csrf` 파라미터(또는 `X-CSRF-Token` 헤더) 검증, 모든 POST 폼에 hidden 필드 추가
+- **답글 권한**: 답글 등록 시 블로그 읽기 권한·소유자 여부·원글 소속을 컨트롤러에서도 검증
 
 ### 2026-05
 
@@ -849,6 +851,7 @@ mvn package
 - **그 외 역할**: `is_approved == false` 이면 소유 블로그·멤버 블로그가 있어도 **승인 대기 화면**(`auth/pendingApproval`)으로 보내지며, 글쓰기·블로그 개설 등은 승인된 세션에서만 허용
 - 메뉴(`layout/menu.jsp`)는 `sessionScope.loginUser` 존재·승인·`can_create_blog`에 따라 **블로그 찾기·블로그 개설** 링크 표시
 - `/admin/**` 인터셉터: 로그인 여부 + `role == SUPER_ADMIN` (과거 문서의 `ADMIN` 표기와 다름)
+- **CSRF**: `CsrfTokenInterceptor`가 세션당 토큰(`sessionScope.csrfToken`)을 발급하고 POST·PUT·DELETE·PATCH 요청에서 검증(불일치 시 403). **새 POST 폼을 만들 때는 반드시** `<input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"/>` 를 넣어야 합니다. AJAX는 `X-CSRF-Token` 헤더로 보내도 됩니다.
 - 비공개 블로그(`is_public=0`)는 소유자·ACTIVE 멤버만 조회; 공개 블로그는 목록·글 읽기에 로그인이 필수이지 않을 수 있음(쓰기는 로그인·승인·멤버십 필요)
 
 ## 10) 확인된 상태
@@ -920,7 +923,6 @@ flowchart TD
 
 ## 13) 향후 개선 권장사항
 
-- POST 요청 CSRF 토큰 적용
 - 세션 고정 공격 방어(로그인 시 세션 재생성)
 - OAuth 에러 상세 로깅/예외 분리
 - DB 접속정보 외부 설정화 (`.properties`/환경변수)

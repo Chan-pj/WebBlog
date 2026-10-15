@@ -79,6 +79,7 @@
                         <form method="post"
                               action="${pageContext.request.contextPath}/blog/${blogId}/member/status.do"
                               style="display:inline;">
+                            <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"/>
                             <input type="hidden" name="memberId" value="${member.memberId}"/>
                             <input type="hidden" name="status" value="ACTIVE"/>
                             <button type="submit" class="status-btn active-btn">활성</button>
@@ -86,6 +87,7 @@
                         <form method="post"
                               action="${pageContext.request.contextPath}/blog/${blogId}/member/status.do"
                               style="display:inline;">
+                            <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"/>
                             <input type="hidden" name="memberId" value="${member.memberId}"/>
                             <input type="hidden" name="status" value="PENDING"/>
                             <button type="submit" class="status-btn pending-btn">대기</button>
@@ -93,6 +95,7 @@
                         <form method="post"
                               action="${pageContext.request.contextPath}/blog/${blogId}/member/status.do"
                               style="display:inline;">
+                            <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"/>
                             <input type="hidden" name="memberId" value="${member.memberId}"/>
                             <input type="hidden" name="status" value="BLOCKED"/>
                             <button type="submit" class="status-btn blocked-btn">차단</button>

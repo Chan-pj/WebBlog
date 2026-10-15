@@ -70,6 +70,7 @@
 <c:if test="${isOwner}">
     <form method="post"
           action="${pageContext.request.contextPath}/blog/${blog.blogId}/board/add.do">
+        <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"/>
         <div class="bb-add-row">
             <input type="text" name="boardName" required maxlength="200" placeholder="새 게시판 이름"/>
             <button type="submit">추가</button>
@@ -103,6 +104,7 @@
                               action="${pageContext.request.contextPath}/blog/${blog.blogId}/board/delete.do"
                               style="display:inline;"
                               onsubmit="return confirm('삭제할까요?');">
+                            <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"/>
                             <input type="hidden" name="boardId" value="${bd.boardId}"/>
                             <button type="submit" class="bb-del-btn">삭제</button>
                         </form>

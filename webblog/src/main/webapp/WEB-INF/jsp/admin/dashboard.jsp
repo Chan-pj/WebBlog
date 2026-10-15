@@ -138,6 +138,7 @@
                             <form method="post"
                                   action="${pageContext.request.contextPath}/admin/blog/update.do"
                                   style="display:inline;">
+                                <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"/>
                                 <input type="hidden" name="blogId" value="${blog.blogId}"/>
                                 <input type="hidden" name="blogName" value="${blog.blogName}"/>
                                 <input type="hidden" name="isPublic" value="${blog.isPublic}"/>
@@ -154,6 +155,7 @@
                                   action="${pageContext.request.contextPath}/admin/blog/delete.do"
                                   style="display:inline;"
                                   onsubmit="return confirm('블로그를 삭제할까요?\n블로그의 모든 게시판·게시글·멤버 정보가 함께 삭제됩니다.');">
+                                <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"/>
                                 <input type="hidden" name="blogId" value="${blog.blogId}"/>
                                 <button type="submit" class="ad-del-btn">삭제</button>
                             </form>
@@ -191,6 +193,7 @@
                         <div class="ad-detail" id="user-${user.userId}">
                             <form method="post"
                                   action="${pageContext.request.contextPath}/admin/user/approve.do">
+                                <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"/>
                                 <input type="hidden" name="userId" value="${user.userId}"/>
                                 <div class="ad-perm-row">
                                     <label class="ad-perm-label">
@@ -241,6 +244,7 @@
                                 <form method="post"
                                       action="${pageContext.request.contextPath}/admin/user/delete.do"
                                       onsubmit="return confirm('회원을 삭제할까요?\n회원이 소유한 블로그(모든 글 포함)와 회원이 쓴 글이 함께 삭제됩니다.');">
+                                    <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"/>
                                     <input type="hidden" name="userId" value="${user.userId}"/>
                                     <button type="submit" class="ad-del-btn">삭제</button>
                                 </form>
