@@ -1,7 +1,7 @@
 # webblog (eGovFrame 4.3.1)
 
 전자정부프레임워크 4.3.1 기반의 웹 블로그 프로젝트입니다.  
-Spring MVC + MyBatis + Tiles 구조로 구성되어 있으며, 일반 로그인과 카카오 OAuth 간편로그인을 지원합니다.
+Spring MVC + MyBatis + Tiles 구조로 구성되어 있으며, 로그인은 카카오 OAuth 간편로그인만 지원합니다.
 
 ## 1) 프로젝트 개요
 
@@ -10,8 +10,8 @@ Spring MVC + MyBatis + Tiles 구조로 구성되어 있으며, 일반 로그인�
 - 뷰: JSP + Tiles
 - DB 접근: MyBatis Mapper
 - 인증:
-  - 이메일 기반 일반 로그인
-  - 카카오 OAuth 2.0 로그인 (`KAKAO_REST_API_KEY` 환경변수 사용)
+  - 카카오 OAuth 2.0 로그인만 사용 (`KAKAO_REST_API_KEY` 환경변수 사용)
+  - 이메일 일반 로그인·회원가입은 제거됨(첫 카카오 로그인 시 계정 자동 생성)
 - 관리자 보호:
   - `/admin/**` 경로 인터셉터 기반 접근 제어
   - 세션 로그인 + `SUPER_ADMIN` 역할 필수
@@ -94,13 +94,12 @@ flowchart BT
 ## 3) 현재 주요 기능
 
 - 회원
-  - 일반 회원가입(블로그 관리자 / 블로그 멤버 유형 선택)
+  - 카카오 OAuth 간편 로그인·로그아웃(세션). 첫 로그인 시 `BLOG_MEMBER`·미승인으로 계정 생성
+  - 카카오가 **인증한 이메일**이 기존(이메일 가입) 계정과 같으면 그 계정에 카카오 ID 연결
   - **슈퍼 관리자 승인(`is_approved`) 후** 서비스 이용(미승인 시 로그인해도 대기 화면)
-  - 이메일 기반 로그인·로그아웃(세션)
-  - 카카오 OAuth 간편 로그인(신규 사용자는 `BLOG_ADMIN`·미승인으로 등록)
 - 블로그
   - 공개 블로그 탐색, 블로그 상세(공개는 비로그인 조회 가능 / 비공개는 소유자·멤버만)
-  - **블로그 개설**(`/blog/setup/create.do`): 승인 + `can_create_blog` + `BLOG_ADMIN` + 소유 블로그 없음
+  - **블로그 개설**(`/blog/setup/create.do`): 승인 + `can_create_blog` + 소유 블로그 없음
   - **멤버 가입**(공개 블로그): 가입 후 ACTIVE 멤버는 해당 블로그 게시판에 **원글** 작성 가능
   - 멤버 목록·상태 변경(소유자 전용)
 - 게시판·게시글
@@ -110,6 +109,7 @@ flowchart BT
   - 레이아웃 **반응형**(viewport + flex, `layout.jsp`)
 - 금지어(블랙리스트)
   - 게시글/답글 등록·수정 시 **전역 + 블로그별** 금지어 및 개인정보 패턴 검사
+  - 차단된 등록 시도는 `moderation_violations`에 기록(관리자 검색 「위반 시도 로그」·리포트에서 조회)
   - 슈퍼 관리자: 전역 금지어 UI(`/admin/blacklist.do`)
   - 블로그 소유자: 블로그 전용 금지어 UI(`/blog/{blogId}/blacklist.do`)
 - 슈퍼 관리자
@@ -120,7 +120,7 @@ flowchart BT
 
 | 구분 | 상태 |
 |------|------|
-| 회원가입 후 슈퍼 관리자 승인 후 이용 | 구현 (`blog_user.is_approved`, 로그인·홈 라우팅) |
+| 가입(첫 카카오 로그인) 후 슈퍼 관리자 승인 후 이용 | 구현 (`blog_user.is_approved`, 로그인·홈 라우팅) |
 | 로그인 사용자 자신의 블로그 생성 | 구현 (`/blog/setup/create.do`, 권한 검증) |
 | 게시판 생성·관리·응답형 UI | 구현 (`board` 테이블, 소유자 관리, 반응형 레이아웃) |
 | 멤버 가입 후 게시판 글쓰기 | 구현 (공개 블로그 가입 + `canWritePost`) |
@@ -129,14 +129,27 @@ flowchart BT
 
 ### 아직 없거나 제한적인 항목
 
-- 일반 로그인 **비밀번호** 검증(현재 이메일 존재 여부만으로 로그인되는 데모 수준)
 - 게시글 **비밀번호·비밀글** 열람 정책
 - 댓글/대댓글 트리(현재는 **게시글 단위 답글 1단**만)
 - 프로필 확장 UI( DB 컬럼 일부는 존재할 수 있음 )
 
-## 3-2) 변경 이력 (2026-05)
+## 3-2) 변경 이력
 
-### DB 스키마
+### 2026-10
+
+- **로그인**: 이메일만으로 로그인되던 일반 로그인(`POST /auth/login.do`)과 회원가입(`/auth/register.do`) 제거 → 카카오 로그인만 허용
+  - 카카오 인증 이메일이 기존 미연동 계정과 같으면 그 계정에 카카오 ID 연결
+  - 카카오 신규 가입자 role `USER` → `BLOG_MEMBER`, 신규 가입 직후 세션 `userId`가 비던 문제 수정
+  - 로그인 화면 메시지 XSS 수정(`c:out`)
+- **멤버 상태 변경**: 다른 블로그의 `memberId`로 상태를 바꿀 수 있던 문제 수정(`blog_id` 조건 + 상태값 검증)
+- **관리자 검색**: 존재하지 않는 테이블·컬럼·쿼리 참조 수정(`AdminSearchMapper.xml`)
+- **위반 기록**: 금지어·개인정보로 차단된 등록 시도를 `moderation_violations`에 기록(별도 트랜잭션)
+- **DB 스크립트**: `05_moderation_violations_and_access_log.sql`, `06_promote_super_admin.sql` 추가
+- **메뉴**: 「블로그 개설」 노출 조건을 `can_create_blog` 기준으로 변경(`BLOG_ADMIN` 역할 조건 제거)
+
+### 2026-05
+
+#### DB 스키마
 
 - `01_create_tables.sql`
   - `blog_user.is_approved` 기본값 `0`(신규 가입자 미승인)
@@ -146,7 +159,7 @@ flowchart BT
 - **기존 DB**용 마이그레이션: `src/main/resources/db/mariadb/04_board_reply_and_member_unique.sql`  
   (게시판 생성·기본 게시판 시드·`post` 컬럼·FK·멤버 유니크 등, idempotent에 가깝게 구성)
 
-### 애플리케이션
+#### 애플리케이션
 
 - `UserServiceImpl`: 가입 시 역할과 무관하게 **`approved=false`**
 - `AuthController` / `HomeController`: `SUPER_ADMIN` 제외 **미승인 사용자는 승인 대기 화면**으로 유도
@@ -163,20 +176,22 @@ flowchart BT
 ### 용어
 
 - **슈퍼 관리자(`SUPER_ADMIN`)**: `/admin/**` 접근, 전역 금지어·회원 승인·블로그 설정
-- **블로그 관리자(`BLOG_ADMIN`)**: 자신이 소유한 블로그의 게시판·멤버·블랙리스트·답글 관리
-- **블로그 멤버(`BLOG_MEMBER`)**: 기본 가입 유형; 다른 사람의 공개 블로그에 **멤버 가입** 후 원글 작성 가능
+- **블로그 관리자(블로그 소유자)**: 자신이 소유한 블로그의 게시판·멤버·블랙리스트·답글 관리. 슈퍼 관리자가 `can_create_blog`를 켜 주면 블로그를 개설할 수 있습니다(`BLOG_ADMIN` 역할 값은 관리자 화면 표시용).
+- **블로그 멤버(`BLOG_MEMBER`)**: 첫 카카오 로그인 시 기본 역할; 다른 사람의 공개 블로그에 **멤버 가입** 후 원글 작성 가능
 
 ### 처음 세팅(운영자)
 
-1. DB 스크립트 순서대로 실행: `00` → `01` → (선택) `02_seed_admin_optional.sql`  
-   - 기존 DB였다면 `03_migrate_to_super_admin_model.sql`에 이어 **`04_board_reply_and_member_unique.sql`** 실행
-2. 슈퍼 관리자로 로그인(시드 이메일 등) 후 `/admin/dashboard.do`에서 신규 회원 **승인** 체크 및 권한 부여
-3. **블로그를 운영할 사람**에게는 `BLOG_ADMIN` 역할(가입 시 선택 또는 DB)과 **`can_create_blog`** 를 켜 주고, 게시판까지 쓰게 하려면 **`can_create_board`** 도 켜 줍니다.  
+1. DB 스크립트 순서대로 실행: `00` → `01` → **`05_moderation_violations_and_access_log.sql`**  
+   - 기존 DB였다면 `03_migrate_to_super_admin_model.sql`에 이어 **`04_board_reply_and_member_unique.sql`**, **`05`** 실행
+2. **슈퍼 관리자 지정**: 관리자로 쓸 카카오 계정으로 한 번 로그인(승인 대기 화면이 보이면 정상) → `06_promote_super_admin.sql`의 `@kakao_id`를 바꿔 실행 → 로그아웃 후 다시 로그인  
+   - `02_seed_admin_optional.sql`의 시드 계정(`admin@example.com`)은 이메일 로그인이 제거되어 더 이상 로그인할 수 없습니다.
+3. 슈퍼 관리자로 `/admin/dashboard.do`에서 신규 회원 **승인** 체크 및 권한 부여
+4. **블로그를 운영할 사람**에게는 **`can_create_blog`** 를 켜 주고, 게시판까지 쓰게 하려면 **`can_create_board`** 도 켜 줍니다.  
    - 블로그당 게시판 개수 상한은 `blog.board_limit`(슈퍼 관리자가 `/admin/blogs.do` 등에서 조정)
 
 ### 블로그 관리자(사이트 사용자)
 
-1. 가입 시 **블로그 관리자** 선택 → 슈퍼 관리자가 **승인** + **블로그 생성** 권한 부여
+1. 카카오로 로그인(첫 로그인 시 계정 생성) → 슈퍼 관리자가 **승인** + **블로그 생성** 권한 부여
 2. 로그인 후 메뉴 **「블로그 개설」** 또는 `/blog/setup/create.do` 에서 이름 입력 후 개설(기본 게시판 자동 생성)
 3. `/blog/{blogId}/boards.do`에서 게시판 추가(권한·상한 내)
 4. `/blog/{blogId}/blacklist.do`에서 블로그 전용 금지어 등록
@@ -185,7 +200,7 @@ flowchart BT
 
 ### 다른 블로그에 참여만 하는 사용자
 
-1. **블로그 멤버**로 가입하거나, 역할과 무관하게 로그인 후 `/blog/explore.do`에서 공개 블로그 선택
+1. 카카오로 로그인 후(승인 필요) `/blog/explore.do`에서 공개 블로그 선택
 2. 블로그 보기 화면에서 **「이 블로그에 멤버로 가입」** (공개 블로그만)
 3. 승인된 계정으로 `/blog/{blogId}/boards.do` → 게시판 → **글쓰기**(원글만; 답글은 소유자만)
 
@@ -236,9 +251,9 @@ flowchart BT
   - `/auth/kakao/login.do` 사용
   - 키 누락/권한 오류 메시지 출력 추가
 
-### (C) 일반 로그인 및 세션 연동
+### (C) 로그인 세션 연동
 
-- `POST /auth/login.do` 구현 (이메일 기반)
+- ~~`POST /auth/login.do` (이메일 기반 일반 로그인)~~ — 2026-10 제거(카카오 로그인만 허용)
 - 로그인 성공 시 `loginUser` 세션 저장
 - `GET /auth/logout.do` 구현
 - `menu.jsp`에서 로그인 상태에 따라 메뉴 분기
@@ -524,6 +539,8 @@ KAKAO_REST_API_KEY=키값
 | 3 | `src/main/resources/db/mariadb/02_seed_admin_optional.sql` | (선택) 테스트용 `SUPER_ADMIN` 역할 회원 삽입/갱신 |
 | 4 | `src/main/resources/db/mariadb/03_migrate_to_super_admin_model.sql` | (기존 DB 업그레이드용) `SUPER_ADMIN/BLOG_ADMIN/BLOG_MEMBER` 역할 체계 + 승인/권한/제한 컬럼 마이그레이션 |
 | 5 | `src/main/resources/db/mariadb/04_board_reply_and_member_unique.sql` | (기존 DB 업그레이드용) `board` 테이블·`post.board_id`/`parent_post_id`·멤버 유니크 등 |
+| 6 | `src/main/resources/db/mariadb/05_moderation_violations_and_access_log.sql` | (신규·기존 모두) `moderation_violations` 테이블, 로그 DB `pub_blog_log`·`access_log` 테이블 생성 및 권한, role `USER` → `BLOG_MEMBER` 정리 |
+| 7 | `src/main/resources/db/mariadb/06_promote_super_admin.sql` | 카카오로 한 번 로그인한 계정을 `SUPER_ADMIN`으로 지정(`@kakao_id` 수정 후 실행) |
 
 **1단계(관리자 계정으로 실행)**  
 스크립트 안의 비밀번호·호스트(`localhost` 등)를 환경에 맞게 수정한 뒤 실행합니다.
@@ -539,15 +556,23 @@ mysql -u root -p < src/main/resources/db/mariadb/00_create_database_and_user.sql
 mysql -u pub_blog_users -p pub_blog < src/main/resources/db/mariadb/01_create_tables.sql
 ```
 
-**3단계(선택)**  
-관리자 화면(`/admin/**`)은 세션 사용자의 `role`이 **`SUPER_ADMIN`** 이어야 합니다. 로컬 테스트 시 `02_seed_admin_optional.sql`로 시드하거나, 기존 사용자에 `UPDATE blog_user SET role='SUPER_ADMIN', is_approved=1 WHERE email='...'` 를 적용합니다.
+**3단계(관리자 계정으로 실행)**  
+위반 기록·접속 로그 테이블을 만듭니다. 로그 DB `pub_blog_log`를 생성하고 앱 계정에 권한을 주므로 root로 실행합니다.
+
+```bash
+mysql -u root -p < src/main/resources/db/mariadb/05_moderation_violations_and_access_log.sql
+```
+
+**4단계(슈퍼 관리자 지정)**  
+관리자 화면(`/admin/**`)은 세션 사용자의 `role`이 **`SUPER_ADMIN`** 이어야 합니다. 로그인은 카카오만 지원하므로, 관리자로 쓸 카카오 계정으로 먼저 한 번 로그인한 뒤 `06_promote_super_admin.sql`의 `@kakao_id`를 그 계정 값으로 바꿔 실행하고, 로그아웃 후 다시 로그인합니다.  
+(`02_seed_admin_optional.sql`의 이메일 시드 계정으로는 더 이상 로그인할 수 없습니다.)
 
 **권한 요약**
 
 - `00_create_database_and_user.sql` 예시는 개발 편의상 `GRANT ALL PRIVILEGES ON pub_blog.*` 를 사용합니다.
 - 운영에서는 `SELECT`, `INSERT`, `UPDATE`, `DELETE`, `EXECUTE` 등 최소 권한만 부여하는 것을 권장합니다.
 
-생성되는 주요 테이블: `blog_user`, `blog`, `board`, `blog_member`, `post`, `blacklist_word`
+생성되는 주요 테이블: `blog_user`, `blog`, `board`, `blog_member`, `post`, `blacklist_word`, `moderation_violations` (+ 로그 DB `pub_blog_log.access_log`)
 
 기존 스키마에서 최신 권한 모델로 올릴 때는 `03_migrate_to_super_admin_model.sql`을 실행한 뒤, 게시판·답글 스키마가 없다면 **`04_board_reply_and_member_unique.sql`** 을 추가 실행하세요.  
 **신규 설치**에서 `01_create_tables.sql`만으로 이미 `board`·수정된 `post`가 생성되므로, 이 경우 **`04`는 실행하지 않아도 됩니다.**
@@ -649,7 +674,8 @@ kakao.restApiKey=실제_REST_API_키
    운영 배포 시에는 **실제 도메인·HTTPS** 기준으로 같은 경로를 추가 등록합니다.
 6. **동의 항목(선택)**  
    사용자 정보 API(`/v2/user/me`)에서 닉네임·이메일을 쓰려면 [카카오 로그인] **동의 항목**에서 필요한 항목(예: 닉네임, 카카오계정(이메일))을 앱 정책에 맞게 설정합니다.  
-   이메일 동의가 없으면 본 프로젝트는 내부적으로 대체 이메일 형식을 사용합니다.
+   이메일 동의가 없으면 본 프로젝트는 내부적으로 대체 이메일 형식(`kakao_{카카오ID}`)을 사용합니다.  
+   기존 이메일 가입 계정을 카카오 계정에 연결하려면 **카카오계정(이메일) 동의가 필요**하며, 카카오가 인증한 이메일(`is_email_verified`)일 때만 연결됩니다.
 7. **보안**  
    REST API 키는 **소스·Git에 커밋하지 말고** 환경변수 등으로만 주입합니다. 유출 시 [내 애플리케이션]에서 키 재발급·문서의 보안 가이드를 따릅니다.
 
@@ -797,7 +823,6 @@ mvn package
 - 홈: `/`
 - 로그인: `/auth/login.do`
 - 로그아웃: `/auth/logout.do`
-- 회원가입: `/auth/register.do`
 - 승인 대기 안내: `/auth/pendingApproval.do`
 - 카카오 로그인 시작: `/auth/kakao/login.do`
 - 카카오 콜백: `/auth/kakao/callback.do`
@@ -816,10 +841,11 @@ mvn package
 
 ## 9) 인증/권한 동작 요약
 
-- 로그인 성공 시 세션 키 `loginUser`에 `BlogUserVO` 저장
+- 로그인은 카카오 OAuth만 사용. 로그인 성공 시 세션 키 `loginUser`에 `BlogUserVO` 저장
+- 세션의 `BlogUserVO`는 로그인 시점 값이므로, 관리자가 승인·권한을 바꾼 뒤에는 사용자가 다시 로그인해야 반영됨
 - **`SUPER_ADMIN`**: 항상 `/admin/dashboard.do` 등 관리 화면 이용 가능(시드 시 `is_approved=1` 권장)
 - **그 외 역할**: `is_approved == false` 이면 소유 블로그·멤버 블로그가 있어도 **승인 대기 화면**(`auth/pendingApproval`)으로 보내지며, 글쓰기·블로그 개설 등은 승인된 세션에서만 허용
-- 메뉴(`layout/menu.jsp`)는 `sessionScope.loginUser` 존재·승인·역할에 따라 **블로그 찾기·블로그 개설** 링크 표시
+- 메뉴(`layout/menu.jsp`)는 `sessionScope.loginUser` 존재·승인·`can_create_blog`에 따라 **블로그 찾기·블로그 개설** 링크 표시
 - `/admin/**` 인터셉터: 로그인 여부 + `role == SUPER_ADMIN` (과거 문서의 `ADMIN` 표기와 다름)
 - 비공개 블로그(`is_public=0`)는 소유자·ACTIVE 멤버만 조회; 공개 블로그는 목록·글 읽기에 로그인이 필수이지 않을 수 있음(쓰기는 로그인·승인·멤버십 필요)
 
@@ -835,7 +861,7 @@ mvn package
 - 저장 위치 예시: `docs/screenshots/`
 - 권장 파일:
   - `01-home.png` : 홈 화면
-  - `02-login.png` : 일반 로그인 화면
+  - `02-login.png` : 로그인 화면(카카오로 시작하기)
   - `03-kakao-consent.png` : 카카오 동의 화면
   - `04-admin-dashboard.png` : 관리자 대시보드
   - `06-blog-boards.png` : 게시판 목록
@@ -851,28 +877,9 @@ mvn package
 
 ## 12) 인증/API 플로우 다이어그램
 
-### 12-1. 일반 로그인 플로우
+### 12-1. 카카오 OAuth 로그인 플로우
 
-```mermaid
-sequenceDiagram
-    actor U as User
-    participant V as login.jsp
-    participant A as AuthController
-    participant S as UserService
-    participant DB as MariaDB
-    participant SS as HttpSession
-
-    U->>V: 이메일 입력 후 로그인
-    V->>A: POST /auth/login.do
-    A->>S: getUserByEmail(email)
-    S->>DB: SELECT blog_user by email
-    DB-->>S: user row
-    S-->>A: BlogUserVO
-    A->>SS: setAttribute("loginUser", user)
-    A-->>U: redirect /
-```
-
-### 12-2. 카카오 OAuth 로그인 플로우
+일반(이메일) 로그인은 2026-10에 제거되어 아래 카카오 플로우가 유일한 로그인 경로입니다.
 
 ```mermaid
 sequenceDiagram
@@ -893,12 +900,12 @@ sequenceDiagram
     KAuth-->>App: access_token
     App->>KApi: 사용자 정보 요청(/v2/user/me)
     KApi-->>App: kakao id, email, nickname
-    App->>DB: 사용자 조회/등록
+    App->>DB: kakao_id로 조회 → 없으면 인증 이메일로 기존 계정 연결 → 없으면 신규 등록
     App->>SS: setAttribute("loginUser", user)
-    App-->>U: redirect /
+    App-->>U: redirect / (미승인 시 승인 대기 화면)
 ```
 
-### 12-3. 관리자 접근 제어 플로우
+### 12-2. 관리자 접근 제어 플로우
 
 ```mermaid
 flowchart TD
@@ -911,7 +918,8 @@ flowchart TD
 
 ## 13) 향후 개선 권장사항
 
-- 일반 로그인에 비밀번호 기반 인증 추가
+- POST 요청 CSRF 토큰 적용
+- 관리자 승인·권한 변경 시 세션 사용자 정보 갱신
 - 세션 고정 공격 방어(로그인 시 세션 재생성)
 - OAuth 에러 상세 로깅/예외 분리
 - DB 접속정보 외부 설정화 (`.properties`/환경변수)
