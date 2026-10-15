@@ -56,6 +56,9 @@
 
     <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
         <property name="defaultErrorView" value="cmmn/egovError"/>
+        <!-- 오류 화면을 200 이 아닌 500 으로 응답하고, 예외는 서버 로그에 남긴다 -->
+        <property name="defaultStatusCode" value="500"/>
+        <property name="warnLogCategory" value="com.chan.error"/>
         <property name="exceptionMappings">
             <props>
                 <prop key="org.springframework.dao.DataAccessException">cmmn/dataAccessFailure</prop>
@@ -78,7 +81,8 @@
 
     <bean class="org.springframework.web.servlet.view.UrlBasedViewResolver" p:order="2"
 	    p:viewClass="org.springframework.web.servlet.view.JstlView"
-	    p:prefix="/WEB-INF/jsp/egovframework/example/" p:suffix=".jsp"/>
+	    p:prefix="/WEB-INF/jsp/egovframework/" p:suffix=".jsp"/>
+    <!-- ↑ Tiles 정의가 없는 뷰(예외 화면 cmmn/*)용. 예전 example/ 경로는 존재하지 않아 404 가 났음 -->
 
     <!-- For Pagination Tag -->
     <bean id="imageRenderer" class="com.chan.config.cmmn.web.WebBlogImgPaginationRenderer"/>

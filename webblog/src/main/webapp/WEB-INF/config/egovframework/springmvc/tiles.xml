@@ -67,6 +67,14 @@
         <put-attribute name="body" value="/WEB-INF/jsp/blog/blogBlacklist.jsp"/>
     </definition>
 
+    <definition name="admin/search" extends="defaultLayout">
+        <put-attribute name="body" value="/WEB-INF/jsp/admin/search.jsp"/>
+    </definition>
+
+    <definition name="admin/report" extends="defaultLayout">
+        <put-attribute name="body" value="/WEB-INF/jsp/admin/report.jsp"/>
+    </definition>
+
     <definition name="admin/blacklist" extends="defaultLayout">
         <put-attribute name="body" value="/WEB-INF/jsp/admin/blacklist.jsp"/>
     </definition>

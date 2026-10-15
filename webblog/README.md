@@ -150,6 +150,7 @@ flowchart BT
 - **세션 갱신**: 승인·권한 변경이 재로그인 전까지 반영되지 않던 문제 수정(`SessionUserRefreshInterceptor`)
 - **CSRF 방어**: `CsrfTokenInterceptor` 추가 — 세션당 토큰 발급, POST 요청은 `_csrf` 파라미터(또는 `X-CSRF-Token` 헤더) 검증, 모든 POST 폼에 hidden 필드 추가
 - **답글 권한**: 답글 등록 시 블로그 읽기 권한·소유자 여부·원글 소속을 컨트롤러에서도 검증
+- **오류 화면**: `common/error.jsp`가 예외 메시지·스택 트레이스를 노출하던 문제 수정(서버 로그에만 기록), 404 시 오류 페이지 자체가 NPE 나던 문제 수정, 예외 뷰(`cmmn/*`)·`admin/search`·`admin/report` 뷰가 경로 오류로 404 나던 문제 수정
 
 ### 2026-05
 
