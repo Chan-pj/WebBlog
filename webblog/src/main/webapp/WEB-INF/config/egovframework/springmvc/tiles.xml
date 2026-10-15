@@ -19,10 +19,6 @@
         <put-attribute name="body" value="/WEB-INF/jsp/auth/login.jsp"/>
     </definition>
 
-    <definition name="auth/register" extends="defaultLayout">
-        <put-attribute name="body" value="/WEB-INF/jsp/auth/register.jsp"/>
-    </definition>
-
     <definition name="auth/pendingApproval" extends="defaultLayout">
         <put-attribute name="body" value="/WEB-INF/jsp/auth/pendingApproval.jsp"/>
     </definition>

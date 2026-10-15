@@ -25,7 +25,8 @@
         <result property="kakaoId" column="kakao_id"/>
     </resultMap>
 
-    <insert id="insertUser" parameterType="com.chan.vo.BlogUserVO">
+    <insert id="insertUser" parameterType="com.chan.vo.BlogUserVO"
+        useGeneratedKeys="true" keyProperty="userId">
         INSERT INTO blog_user (email, nickname, role, use_kakao_auth, kakao_id, is_approved)
         VALUES (#{email}, #{nickname}, #{role}, #{useKakaoAuth}, #{kakaoId}, #{approved})
     </insert>
@@ -41,6 +42,11 @@
     <select id="selectUserById" resultMap="blogUserMap">
         SELECT * FROM blog_user WHERE user_id = #{userId}
     </select>
+
+    <update id="linkKakaoId">
+        UPDATE blog_user SET kakao_id = #{kakaoId}, use_kakao_auth = 1
+        WHERE user_id = #{userId} AND kakao_id IS NULL
+    </update>
 
     <select id="selectAllUsers" resultMap="blogUserMap">
         SELECT * FROM blog_user ORDER BY user_id DESC

@@ -22,8 +22,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
@@ -68,39 +66,6 @@ public class AuthController {
         return "auth/login";
     }
 
-    @PostMapping("/login.do")
-    public String login(@RequestParam("email") String email,
-                        HttpServletRequest request,
-                        Model model) {
-        if (email == null || email.trim().isEmpty()) {
-            LOGGER.debug("Login rejected: empty email");
-            model.addAttribute("message", "이메일을 입력해주세요.");
-            return "auth/login";
-        }
-
-        String trimmedEmail = email.trim();
-        BlogUserVO user = userService.getUserByEmail(trimmedEmail);
-        if (user == null) {
-            LOGGER.info("Login failed: unknown email={}", trimmedEmail);
-            // 로그인 실패 로그
-            logService.log(null, "LOGIN_FAIL", request.getRemoteAddr());
-            model.addAttribute("message", "등록되지 않은 이메일입니다.");
-            return "auth/login";
-        }
-
-        LOGGER.info("Login success: userId={}, role={}, email={}",
-                user.getUserId(), user.getRole(), user.getEmail());
-        // 로그인 성공 로그
-        logService.log(user.getUserId(), "LOGIN", request.getRemoteAddr());
-
-        HttpSession session = request.getSession();
-        String next = buildPostLoginRedirect(user);
-        if (shouldEstablishLoginSession(next)) {
-            session.setAttribute(LOGIN_USER_SESSION_KEY, user);
-        }
-        return next;
-    }
-
     @GetMapping("/pendingApproval.do")
     public String pendingApprovalPage(HttpSession session) {
         BlogUserVO user = (BlogUserVO) session.getAttribute(LOGIN_USER_SESSION_KEY);
@@ -131,26 +96,6 @@ public class AuthController {
         LOGGER.warn("pendingApproval: approval wait page userId={}, email={}",
                 user.getUserId(), user.getEmail());
         return VIEW_PENDING_APPROVAL;
-    }
-
-    @GetMapping("/register.do")
-    public String registerPage() {
-        return "auth/register";
-    }
-
-    @PostMapping("/register.do")
-    public String register(@ModelAttribute BlogUserVO user,
-                           @RequestParam(value = "registerRole", required = false, defaultValue = "BLOG_MEMBER")
-                           String registerRole,
-                           HttpServletRequest request,
-                           Model model) {
-        user.setRole("BLOG_ADMIN".equalsIgnoreCase(registerRole) ? "BLOG_ADMIN" : "BLOG_MEMBER");
-        user.setUseKakaoAuth(false);
-        userService.registerUser(user);
-        // 회원가입 로그
-        logService.log(null, "REGISTER", request.getRemoteAddr());
-        model.addAttribute("message", "가입 신청이 접수되었습니다. 슈퍼 관리자 승인 후 로그인하여 이용할 수 있습니다.");
-        return "auth/login";
     }
 
     @GetMapping("/kakao/login.do")
@@ -306,12 +251,15 @@ public class AuthController {
                 Collections.emptyMap());
 
         Object emailObj = kakaoAccount.get("email");
-        String email = emailObj != null ? String.valueOf(emailObj) : "kakao_" + kakaoId;
+        String email = emailObj != null ? String.valueOf(emailObj) : null;
+        boolean emailVerified = email != null
+                && Boolean.TRUE.equals(kakaoAccount.get("is_email_valid"))
+                && Boolean.TRUE.equals(kakaoAccount.get("is_email_verified"));
 
         Object nicknameObj = profile.get("nickname");
         String nickname = nicknameObj != null ? String.valueOf(nicknameObj) : "카카오회원";
 
-        return userService.registerKakaoUser(kakaoId, email, nickname);
+        return userService.registerKakaoUser(kakaoId, email, emailVerified, nickname);
     }
 
     private String buildCallbackUri(HttpServletRequest request) {

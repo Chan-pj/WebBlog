@@ -5,23 +5,20 @@
     <h2>로그인</h2>
 
     <c:if test="${not empty message}">
-        <div class="alert">${message}</div>
+        <div class="alert"><c:out value="${message}"/></div>
     </c:if>
-
-    <form method="post" action="${pageContext.request.contextPath}/auth/login.do">
-        <div style="margin-bottom: 12px;">
-            <label>이메일</label>
-            <input type="email" name="email" placeholder="example@email.com" autofocus/>
-        </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 4px;">로그인</button>
-    </form>
+    <c:choose>
+        <c:when test="${param.error eq 'login_required'}"><div class="alert">로그인이 필요합니다.</div></c:when>
+        <c:when test="${param.error eq 'forbidden'}"><div class="alert">접근 권한이 없습니다.</div></c:when>
+        <c:when test="${param.error eq 'admin_only'}"><div class="alert">슈퍼 관리자만 접근할 수 있습니다.</div></c:when>
+        <c:when test="${param.error eq 'kakao_key_missing'}"><div class="alert">서버에 카카오 REST API 키가 설정되지 않았습니다.</div></c:when>
+    </c:choose>
 
     <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
         <a href="${pageContext.request.contextPath}/auth/kakao/login.do" class="kakao-btn">카카오로 시작하기</a>
     </div>
 
     <p style="margin-top: 20px; font-size: 12px; color: #bbb; text-align: center;">
-        계정이 없으신가요?
-        <a href="${pageContext.request.contextPath}/auth/register.do" style="color: #6b9fd4;">회원가입</a>
+        처음 로그인하면 계정이 만들어지며, 슈퍼 관리자 승인 후 이용할 수 있습니다.
     </p>
 </div>

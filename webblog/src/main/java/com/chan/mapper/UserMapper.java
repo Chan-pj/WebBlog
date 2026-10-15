@@ -11,6 +11,7 @@ public interface UserMapper {
     BlogUserVO selectUserByEmail(String email);
     BlogUserVO selectUserByKakaoId(String kakaoId);
     BlogUserVO selectUserById(Long userId);
+    int linkKakaoId(@Param("userId") Long userId, @Param("kakaoId") String kakaoId);
     List<BlogUserVO> selectAllUsers();
     List<BlogUserVO> selectUsersWithoutOwnedBlog();
     long countAllUsers();

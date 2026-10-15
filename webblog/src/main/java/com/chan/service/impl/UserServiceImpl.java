@@ -16,31 +16,31 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public BlogUserVO registerUser(BlogUserVO user) {
-        BlogUserVO exists = userMapper.selectUserByEmail(user.getEmail());
-        if (exists != null) return exists;
-        userMapper.insertUser(user);
-        return user;
-    }
-
-    @Override
-    @Transactional
-    public BlogUserVO registerKakaoUser(String kakaoId, String email, String nickname) {
+    public BlogUserVO registerKakaoUser(String kakaoId, String email, boolean emailVerified, String nickname) {
         BlogUserVO exists = userMapper.selectUserByKakaoId(kakaoId);
         if (exists != null) return exists;
+
+        String fallbackEmail = "kakao_" + kakaoId;
+        if (email != null) {
+            BlogUserVO sameEmail = userMapper.selectUserByEmail(email);
+            if (sameEmail != null) {
+                // 카카오가 소유를 인증한 이메일일 때만 기존(이메일 가입) 계정에 연결한다.
+                if (emailVerified && sameEmail.getKakaoId() == null) {
+                    userMapper.linkKakaoId(sameEmail.getUserId(), kakaoId);
+                    return userMapper.selectUserByKakaoId(kakaoId);
+                }
+                email = null;
+            }
+        }
+
         BlogUserVO user = new BlogUserVO();
         user.setKakaoId(kakaoId);
-        user.setEmail(email);
+        user.setEmail(email != null ? email : fallbackEmail);
         user.setNickname(nickname);
         user.setRole("BLOG_MEMBER");
         user.setUseKakaoAuth(true);
         userMapper.insertUser(user);
-        return user;
-    }
-
-    @Override
-    public BlogUserVO getUserByEmail(String email) {
-        return userMapper.selectUserByEmail(email);
+        return userMapper.selectUserByKakaoId(kakaoId);
     }
 
     @Override
