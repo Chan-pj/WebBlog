@@ -44,6 +44,27 @@ CREATE TABLE IF NOT EXISTS moderation_violations (
     ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- 예전 구조(post_id, detected_word)로 이미 만들어진 테이블이면 위 CREATE 가 건너뛰어지므로
+-- 필요한 컬럼·인덱스·FK 를 추가한다. (기존 컬럼·데이터는 그대로 둠)
+ALTER TABLE moderation_violations
+  ADD COLUMN IF NOT EXISTS blog_id           BIGINT UNSIGNED DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS board_id          BIGINT UNSIGNED DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS user_id           BIGINT UNSIGNED DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS writer_ip         VARCHAR(45) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS matched_word      VARCHAR(200) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS attempted_title   VARCHAR(500) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS attempted_snippet VARCHAR(1000) DEFAULT NULL,
+  ADD INDEX IF NOT EXISTS idx_violation_type (violation_type),
+  ADD INDEX IF NOT EXISTS idx_violation_created (created_at),
+  ADD INDEX IF NOT EXISTS idx_violation_blog (blog_id),
+  ADD INDEX IF NOT EXISTS idx_violation_user (user_id),
+  ADD CONSTRAINT fk_violation_blog FOREIGN KEY IF NOT EXISTS (blog_id)
+    REFERENCES blog (blog_id) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT fk_violation_board FOREIGN KEY IF NOT EXISTS (board_id)
+    REFERENCES board (board_id) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT fk_violation_user FOREIGN KEY IF NOT EXISTS (user_id)
+    REFERENCES blog_user (user_id) ON DELETE SET NULL ON UPDATE CASCADE;
+
 -- ---------------------------------------------------------------------------
 -- 2) 로그인/로그아웃/가입 접속 로그 (별도 DB)
 -- ---------------------------------------------------------------------------

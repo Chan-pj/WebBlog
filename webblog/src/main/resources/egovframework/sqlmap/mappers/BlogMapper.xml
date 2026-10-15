@@ -56,7 +56,9 @@
     </select>
 
     <update id="updateBlog" parameterType="com.chan.vo.BlogVO">
-        UPDATE blog SET blog_name=#{blogName}, is_public=#{isPublic}
+        UPDATE blog SET blog_name=#{blogName}, is_public=#{isPublic},
+               board_limit=#{boardLimit}, image_limit_count=#{imageLimitCount},
+               image_size_limit_bytes=#{imageSizeLimitBytes}
         WHERE blog_id=#{blogId}
     </update>
 

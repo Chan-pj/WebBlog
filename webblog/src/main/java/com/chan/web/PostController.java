@@ -9,7 +9,6 @@ import javax.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -98,7 +97,8 @@ public class PostController {
     @PostMapping("/{blogId}/board/{boardId}/write.do")
     public String write(@PathVariable("blogId") Long blogId,
                         @PathVariable("boardId") Long boardId,
-                        @ModelAttribute PostVO post,
+                        @RequestParam("title") String title,
+                        @RequestParam("content") String content,
                         HttpSession session) {
         BlogUserVO loginUser = getLoginUser(session);
         if (loginUser == null) {
@@ -114,10 +114,13 @@ public class PostController {
         if (board == null || !blogId.equals(board.getBlogId())) {
             return "redirect:/";
         }
+        PostVO post = new PostVO();
         post.setBlogId(blogId);
         post.setBoardId(boardId);
         post.setWriterUserId(loginUser.getUserId());
         post.setParentPostId(null);
+        post.setTitle(title);
+        post.setContent(content);
         try {
             postService.createPost(post);
         } catch (IllegalArgumentException ex) {
@@ -195,7 +198,10 @@ public class PostController {
     }
 
     @PostMapping("/update.do")
-    public String update(@ModelAttribute PostVO post, HttpSession session) {
+    public String update(@RequestParam("postId") Long postId,
+                         @RequestParam("title") String title,
+                         @RequestParam("content") String content,
+                         HttpSession session) {
         BlogUserVO loginUser = getLoginUser(session);
         if (loginUser == null) {
             return "redirect:/auth/login.do?error=login_required";
@@ -203,13 +209,17 @@ public class PostController {
         if (!loginUser.isApproved()) {
             return "redirect:/auth/pendingApproval.do";
         }
-        PostVO original = postService.getPostById(post.getPostId());
+        PostVO original = postService.getPostById(postId);
         if (original == null) {
             return "redirect:/";
         }
         if (!canManagePost(loginUser, original)) {
             return "redirect:/post/view/" + original.getPostId() + ".do?error=forbidden";
         }
+        PostVO post = new PostVO();
+        post.setPostId(postId);
+        post.setTitle(title);
+        post.setContent(content);
         post.setBlogId(original.getBlogId());
         post.setBoardId(original.getBoardId());
         post.setWriterUserId(original.getWriterUserId());

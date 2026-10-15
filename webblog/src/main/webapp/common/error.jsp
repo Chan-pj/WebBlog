@@ -30,6 +30,7 @@
     <c:choose>
         <c:when test="${status == 404}"><h2>페이지를 찾을 수 없습니다.</h2></c:when>
         <c:when test="${status == 403}"><h2>접근 권한이 없습니다.</h2></c:when>
+        <c:when test="${status == 400 or status == 405}"><h2>잘못된 요청입니다.</h2></c:when>
         <c:otherwise><h2>요청을 처리하는 중 오류가 발생했습니다.</h2></c:otherwise>
     </c:choose>
     <p>잠시 후 다시 시도해 주세요.</p>

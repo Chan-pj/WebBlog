@@ -140,7 +140,7 @@
                                   style="display:inline;">
                                 <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"/>
                                 <input type="hidden" name="blogId" value="${blog.blogId}"/>
-                                <input type="hidden" name="blogName" value="${blog.blogName}"/>
+                                <input type="hidden" name="blogName" value="<c:out value='${blog.blogName}'/>"/>
                                 <input type="hidden" name="isPublic" value="${blog.isPublic}"/>
                                 <input type="hidden" name="boardLimit"
                                        id="hBoardLimit-${blog.blogId}" value="${blog.boardLimit}"/>

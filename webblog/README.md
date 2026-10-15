@@ -150,6 +150,11 @@ flowchart BT
 - **세션 갱신**: 승인·권한 변경이 재로그인 전까지 반영되지 않던 문제 수정(`SessionUserRefreshInterceptor`)
 - **CSRF 방어**: `CsrfTokenInterceptor` 추가 — 세션당 토큰 발급, POST 요청은 `_csrf` 파라미터(또는 `X-CSRF-Token` 헤더) 검증, 모든 POST 폼에 hidden 필드 추가
 - **답글 권한**: 답글 등록 시 블로그 읽기 권한·소유자 여부·원글 소속을 컨트롤러에서도 검증
+- **폼 바인딩**: 관리자 블로그 설정·게시글 작성/수정에서 폼 값을 VO 에 통째로 바인딩하지 않고 허용 항목만 받도록 변경, 관리자 입력값 범위 제한. 관리자 블로그 설정의 게시판·이미지 한도가 저장되지 않던 문제 수정
+- **redirect URL**: 모든 redirect 에 `?memberCount=N` 이 붙던 문제 수정(`ignoreDefaultModelOnRedirect`)
+- **HTTP 상태**: 잘못된 메서드(405)·파라미터(400)가 500 으로 응답되던 문제 수정(`DefaultHandlerExceptionResolver`), 미사용 BASIC `login-config` 제거(Jetty 등에서 기동 실패 원인)
+- **05 스크립트**: 예전 구조의 `moderation_violations` 테이블이 이미 있으면 필요한 컬럼·FK 를 추가하도록 보강(재실행 안전)
+- **통합 테스트**: `WebBlogIntegrationTest` 추가(§10 참고)
 - **오류 화면**: `common/error.jsp`가 예외 메시지·스택 트레이스를 노출하던 문제 수정(서버 로그에만 기록), 404 시 오류 페이지 자체가 NPE 나던 문제 수정, 예외 뷰(`cmmn/*`)·`admin/search`·`admin/report` 뷰가 경로 오류로 404 나던 문제 수정
 
 ### 2026-05
@@ -857,8 +862,16 @@ mvn package
 
 ## 10) 확인된 상태
 
-- `mvn compile -DskipTests` 기준 컴파일 성공
-- 최근 수정 파일 기준 lint 오류 없음
+- `mvn package` 빌드 성공, 전체 JSP 사전 컴파일(jspc) 성공
+- 통합 테스트 24개 통과 (`src/test/java/com/chan/it/WebBlogIntegrationTest.java`)
+
+### 통합 테스트 실행
+
+실제 Spring XML 설정으로 컨트롤러·서비스·매퍼를 **테스트 DB**에서 함께 검증합니다(CSRF, 멤버 상태 IDOR, 답글 권한, 폼 바인딩, 관리자 검색, 위반 기록, 회원·블로그 삭제, 세션 갱신 등). DB가 필요하므로 기본 빌드에서는 건너뜁니다.
+
+1. 테스트 DB 준비(앱 계정으로 가능 — MariaDB 기본 설정은 `test_` 로 시작하는 DB 생성을 허용): `test_webblog` 에 `01_create_tables.sql`, `05_...sql` 을 `USE` 대상만 바꿔 실행하고, 로그용 `test_webblog_log` 도 만듭니다.
+2. 실행: `mvn test -Dwebblog.it=true` (다른 DB 이름은 `-Dwebblog.it.db=test_xxx`)
+3. 테스트는 매번 테이블을 비우므로 `test_` 로 시작하지 않는 DB 에서는 실행을 거부합니다.
 
 ## 11) 실행 스크린샷 가이드
 

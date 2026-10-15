@@ -17,6 +17,8 @@
         <property name="webBindingInitializer">
             <bean class="com.chan.config.cmmn.web.WebBlogBindingInitializer"/>
         </property>
+        <!-- GlobalModelAdvice 의 memberCount 등 모델 값이 redirect URL 쿼리(?memberCount=N)로 붙지 않도록 -->
+        <property name="ignoreDefaultModelOnRedirect" value="true"/>
     </bean>
     <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping">
         <property name="interceptors">
@@ -54,7 +56,10 @@
         <constructor-arg ref="userService"/>
     </bean>
 
-    <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+    <!-- 예외 리졸버를 직접 등록하면 Spring 기본 리졸버가 빠져 405/400 등이 모두 500 이 되므로 먼저 둔다 -->
+    <bean class="org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver" p:order="0"/>
+
+    <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver" p:order="1">
         <property name="defaultErrorView" value="cmmn/egovError"/>
         <!-- 오류 화면을 200 이 아닌 500 으로 응답하고, 예외는 서버 로그에 남긴다 -->
         <property name="defaultStatusCode" value="500"/>

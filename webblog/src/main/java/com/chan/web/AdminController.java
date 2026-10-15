@@ -13,7 +13,6 @@ import javax.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,6 +29,11 @@ import com.chan.vo.BlogVO;
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
+
+    /** 관리자가 입력하는 개수(게시판·이미지 등) 상한 */
+    private static final int MAX_COUNT = 100;
+    /** 이미지 1개 크기 상한: 100MB */
+    private static final long MAX_IMAGE_BYTES = 100L * 1024L * 1024L;
 
     @Resource
     private UserService userService;
@@ -101,7 +105,24 @@ public class AdminController {
     }
 
     @PostMapping("/blog/update.do")
-    public String updateBlog(@ModelAttribute BlogVO blog) {
+    public String updateBlog(@RequestParam("blogId") Long blogId,
+                             @RequestParam(value = "blogName", required = false) String blogName,
+                             @RequestParam(value = "isPublic", required = false) boolean isPublic,
+                             @RequestParam(value = "boardLimit", defaultValue = "5") int boardLimit,
+                             @RequestParam(value = "imageLimitCount", defaultValue = "5") int imageLimitCount,
+                             @RequestParam(value = "imageSizeLimitBytes", defaultValue = "5242880") long imageSizeLimitBytes) {
+        // 폼 값을 VO 에 통째로 바인딩하지 않고, 수정 가능한 항목만 골라 범위를 제한한다.
+        BlogVO blog = blogService.getBlogById(blogId);
+        if (blog == null) {
+            return "redirect:/admin/blogs.do";
+        }
+        if (blogName != null && !blogName.trim().isEmpty()) {
+            blog.setBlogName(blogName.trim());
+        }
+        blog.setIsPublic(isPublic);
+        blog.setBoardLimit(clamp(boardLimit, 1, MAX_COUNT));
+        blog.setImageLimitCount(clamp(imageLimitCount, 0, MAX_COUNT));
+        blog.setImageSizeLimitBytes(clamp(imageSizeLimitBytes, 0L, MAX_IMAGE_BYTES));
         blogService.updateBlogSetting(blog);
         return "redirect:/admin/blogs.do";
     }
@@ -133,9 +154,9 @@ public class AdminController {
         vo.setApproved(approved);
         vo.setCanCreateBlog(canCreateBlog);
         vo.setCanCreateBoard(canCreateBoard);
-        vo.setBoardCreateQuota(boardCreateQuota);
-        vo.setImageUploadLimitCount(imageUploadLimitCount);
-        vo.setImageSizeLimitBytes(imageSizeLimitBytes);
+        vo.setBoardCreateQuota(clamp(boardCreateQuota, 0, MAX_COUNT));
+        vo.setImageUploadLimitCount(clamp(imageUploadLimitCount, 0, MAX_COUNT));
+        vo.setImageSizeLimitBytes(clamp(imageSizeLimitBytes, 0L, MAX_IMAGE_BYTES));
         userService.updateApprovalAndPermission(vo);
         return "redirect:/admin/dashboard.do";
     }
@@ -181,6 +202,14 @@ public class AdminController {
     public String deleteBlog(@RequestParam("blogId") Long blogId) {
         blogService.deleteBlog(blogId);
         return "redirect:/admin/blogs.do";
+    }
+
+    private static int clamp(int value, int min, int max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
+    private static long clamp(long value, long min, long max) {
+        return Math.max(min, Math.min(max, value));
     }
 
     private static String encodeFilename(String filename) {
