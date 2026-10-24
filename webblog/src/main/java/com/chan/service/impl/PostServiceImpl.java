@@ -48,8 +48,13 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostVO> getRootPostsByBoardId(Long boardId) {
-        return postMapper.selectRootPostsByBoardId(boardId);
+    public List<PostVO> getRootPostsByBoardId(Long boardId, int offset, int limit) {
+        return postMapper.selectRootPostsByBoardId(boardId, offset, limit);
+    }
+
+    @Override
+    public int countRootPostsByBoardId(Long boardId) {
+        return postMapper.countRootPostsByBoardId(boardId);
     }
 
     @Override

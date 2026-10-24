@@ -606,6 +606,70 @@ class WebBlogIntegrationTest {
         assertEquals(1, count("SELECT COUNT(*) FROM blog WHERE owner_user_id = ?", normal));
     }
 
+    // ------------------------------------------------------------------ 페이지 나누기 (#7)
+
+    @SuppressWarnings("unchecked")
+    private static <T> T modelAttr(MvcResult r, String name) {
+        return (T) r.getModelAndView().getModel().get(name);
+    }
+
+    @Test
+    void paging_postListShowsTenPerPageAndClampsPage() throws Exception {
+        long owner = user("o@t.com", "BLOG_ADMIN", true, true, true);
+        long blogId = blog(owner, "A");
+        long boardId = board(blogId, "기본");
+        for (int i = 1; i <= 15; i++) {
+            long root = insertPost(blogId, boardId, owner, "글" + i, "c", null);
+            if (i == 15) {
+                insertPost(blogId, boardId, owner, "답글", "c", root);
+            }
+        }
+        String url = "/post/" + blogId + "/board/" + boardId + "/list.do";
+
+        MvcResult p1 = mvc.perform(get(url)).andExpect(status().isOk()).andReturn();
+        List<?> posts1 = modelAttr(p1, "posts");
+        org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo info = modelAttr(p1, "paginationInfo");
+        assertEquals(10, posts1.size());
+        assertEquals(15, info.getTotalRecordCount(), "답글은 목록 개수에서 제외");
+        assertEquals(2, info.getTotalPageCount());
+
+        MvcResult p2 = mvc.perform(get(url).param("pageIndex", "2")).andReturn();
+        assertEquals(5, ((List<?>) modelAttr(p2, "posts")).size());
+
+        MvcResult over = mvc.perform(get(url).param("pageIndex", "99")).andReturn();
+        assertEquals(2, ((org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo)
+                modelAttr(over, "paginationInfo")).getCurrentPageNo());
+        assertEquals(5, ((List<?>) modelAttr(over, "posts")).size());
+
+        MvcResult under = mvc.perform(get(url).param("pageIndex", "-3")).andReturn();
+        assertEquals(10, ((List<?>) modelAttr(under, "posts")).size());
+    }
+
+    @Test
+    void paging_exploreAndAdminLists() throws Exception {
+        long admin = user("admin@t.com", "SUPER_ADMIN", true, true, true);
+        user("admin2@t.com", "SUPER_ADMIN", true, true, true);
+        for (int i = 1; i <= 12; i++) {
+            blog(user("u" + i + "@t.com", "BLOG_ADMIN", true, true, true), "블로그" + i);
+        }
+        MvcResult explore = mvc.perform(get("/blog/explore.do").param("pageIndex", "2")).andReturn();
+        assertEquals(2, ((List<?>) modelAttr(explore, "blogs")).size());
+
+        MvcResult dash = mvc.perform(get("/admin/dashboard.do").session(loginAs(admin))
+                .param("blogPage", "2").param("userPage", "1")).andExpect(status().isOk()).andReturn();
+        assertEquals(2, ((List<?>) modelAttr(dash, "blogs")).size());
+        List<BlogUserVO> users = modelAttr(dash, "users");
+        assertEquals(10, users.size());
+        for (BlogUserVO u : users) {
+            assertFalse("SUPER_ADMIN".equals(u.getRole()), "회원 목록에서 슈퍼 관리자 제외");
+        }
+        assertEquals(12, ((org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo)
+                modelAttr(dash, "userPaginationInfo")).getTotalRecordCount());
+
+        MvcResult list = mvc.perform(get("/admin/blogs.do").session(loginAs(admin)).param("blogPage", "2")).andReturn();
+        assertEquals(2, ((List<?>) modelAttr(list, "blogs")).size());
+    }
+
     // ------------------------------------------------------------------ 오류 화면 / 뷰 경로
 
     @Test

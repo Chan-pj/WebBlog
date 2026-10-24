@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
+import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.chan.service.BlogService;
 import com.chan.service.BoardService;
 import com.chan.service.PostService;
+import com.chan.util.PagingUtil;
 import com.chan.vo.BlogUserVO;
 import com.chan.vo.BlogVO;
 import com.chan.vo.BoardVO;
@@ -50,6 +52,7 @@ public class PostController {
     @GetMapping("/{blogId}/board/{boardId}/list.do")
     public String list(@PathVariable("blogId") Long blogId,
                        @PathVariable("boardId") Long boardId,
+                       @RequestParam(value = "pageIndex", defaultValue = "1") int pageIndex,
                        Model model,
                        HttpSession session) {
         BoardVO board = boardService.getBoard(boardId);
@@ -61,7 +64,10 @@ public class PostController {
         if (!blogService.canReadBlog(blogId, uid)) {
             return "redirect:/auth/login.do?error=forbidden";
         }
-        model.addAttribute("posts", postService.getRootPostsByBoardId(boardId));
+        PaginationInfo paging = PagingUtil.paginate(pageIndex, postService.countRootPostsByBoardId(boardId));
+        model.addAttribute("posts", postService.getRootPostsByBoardId(
+                boardId, paging.getFirstRecordIndex(), paging.getRecordCountPerPage()));
+        model.addAttribute("paginationInfo", paging);
         model.addAttribute("blogId", blogId);
         model.addAttribute("boardId", boardId);
         model.addAttribute("board", board);

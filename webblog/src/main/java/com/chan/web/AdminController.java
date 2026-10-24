@@ -10,6 +10,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +23,7 @@ import com.chan.service.BlogService;
 import com.chan.service.ModerationService;
 import com.chan.service.ReportService;
 import com.chan.service.UserService;
+import com.chan.util.PagingUtil;
 import com.chan.vo.AdminSearchResultVO;
 import com.chan.vo.BlogUserVO;
 import com.chan.vo.BlogVO;
@@ -51,9 +53,17 @@ public class AdminController {
     private ModerationService moderationService;
 
     @GetMapping("/dashboard.do")
-    public String dashboard(Model model) {
-        model.addAttribute("users", userService.getAllUsers());
-        model.addAttribute("blogs", blogService.getAllBlogs());
+    public String dashboard(@RequestParam(value = "blogPage", defaultValue = "1") int blogPage,
+                            @RequestParam(value = "userPage", defaultValue = "1") int userPage,
+                            Model model) {
+        PaginationInfo blogPaging = PagingUtil.paginate(blogPage, blogService.countAllBlogs());
+        PaginationInfo userPaging = PagingUtil.paginate(userPage, userService.countUsersExceptSuperAdmin());
+        model.addAttribute("blogs", blogService.getAllBlogs(
+                blogPaging.getFirstRecordIndex(), blogPaging.getRecordCountPerPage()));
+        model.addAttribute("users", userService.getAllUsers(
+                userPaging.getFirstRecordIndex(), userPaging.getRecordCountPerPage()));
+        model.addAttribute("blogPaginationInfo", blogPaging);
+        model.addAttribute("userPaginationInfo", userPaging);
         model.addAttribute("usersPendingBlogProvision", userService.getUsersWithoutOwnedBlog());
         return "admin/dashboard";
     }
@@ -99,8 +109,11 @@ public class AdminController {
     }
 
     @GetMapping("/blogs.do")
-    public String blogList(Model model) {
-        model.addAttribute("blogs", blogService.getAllBlogs());
+    public String blogList(@RequestParam(value = "blogPage", defaultValue = "1") int blogPage, Model model) {
+        PaginationInfo blogPaging = PagingUtil.paginate(blogPage, blogService.countAllBlogs());
+        model.addAttribute("blogs", blogService.getAllBlogs(
+                blogPaging.getFirstRecordIndex(), blogPaging.getRecordCountPerPage()));
+        model.addAttribute("blogPaginationInfo", blogPaging);
         return "admin/blogList";
     }
 

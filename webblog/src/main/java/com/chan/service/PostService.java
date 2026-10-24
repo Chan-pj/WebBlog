@@ -13,7 +13,9 @@ public interface PostService {
 
     PostVO getPostById(Long postId);
 
-    List<PostVO> getRootPostsByBoardId(Long boardId);
+    List<PostVO> getRootPostsByBoardId(Long boardId, int offset, int limit);
+
+    int countRootPostsByBoardId(Long boardId);
 
     List<PostVO> getRepliesByParentPostId(Long parentPostId);
 }

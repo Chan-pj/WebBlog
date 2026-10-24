@@ -278,7 +278,21 @@
         .flex  { display: flex; align-items: center; gap: 8px; }
         .gap-4 { gap: 4px; }
         .between { justify-content: space-between; }
+        .wb-paging { margin: 16px 0; text-align: center; font-size: 13px; }
+        .wb-paging a, .wb-paging strong { display: inline-block; min-width: 24px; padding: 2px 4px; }
+        .wb-paging img { vertical-align: middle; }
     </style>
+    <script>
+        // 목록 페이지 이동: 현재 URL 의 다른 파라미터(검색어, 다른 목록의 페이지 등)는 유지하고 페이지 번호만 바꾼다.
+        function wbMovePage(param, pageNo) {
+            var url = new URL(window.location.href);
+            url.searchParams.set(param, pageNo);
+            window.location.href = url.toString();
+        }
+        function goPage(pageNo)     { wbMovePage('pageIndex', pageNo); }
+        function goBlogPage(pageNo) { wbMovePage('blogPage', pageNo); }
+        function goUserPage(pageNo) { wbMovePage('userPage', pageNo); }
+    </script>
 </head>
 <body>
 <div class="wb-wrap">

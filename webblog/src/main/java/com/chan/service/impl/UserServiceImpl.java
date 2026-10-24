@@ -58,8 +58,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<BlogUserVO> getAllUsers() {
-        return userMapper.selectAllUsers();
+    public List<BlogUserVO> getAllUsers(int offset, int limit) {
+        return userMapper.selectAllUsers(offset, limit);
+    }
+
+    @Override
+    public int countUsersExceptSuperAdmin() {
+        return userMapper.countUsersExceptSuperAdmin();
     }
 
     @Override

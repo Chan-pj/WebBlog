@@ -13,7 +13,7 @@ public interface BlogMapper {
     int insertBlog(BlogVO blog);
     BlogVO selectBlogById(Long blogId);
     BlogVO selectBlogByOwnerUserId(Long ownerUserId);
-    List<BlogVO> selectAllBlogs();
+    List<BlogVO> selectAllBlogs(@Param("offset") int offset, @Param("limit") int limit);
     int updateBlog(BlogVO blog);
 
     int insertBlogMember(BlogMemberVO member);
@@ -37,7 +37,9 @@ public interface BlogMapper {
 
     int countActiveMembers();
     
-    List<BlogVO> selectPublicBlogs();
+    List<BlogVO> selectPublicBlogs(@Param("offset") int offset, @Param("limit") int limit);
+
+    int countPublicBlogs();
     
     int countActiveMembership(@Param("blogId") Long blogId, @Param("userId") Long userId);
     

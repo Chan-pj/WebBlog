@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="ui" uri="http://egovframework.gov/ctl/ui" %>
 
 <style>
 .pl-nav { display:flex; gap:8px; margin-bottom:1.25rem; }
@@ -130,6 +131,9 @@
         </c:forEach>
     </tbody>
 </table>
+<c:if test="${paginationInfo.totalPageCount > 1}">
+    <div class="wb-paging"><ui:pagination paginationInfo="${paginationInfo}" type="image" jsFunction="goPage"/></div>
+</c:if>
 
 <c:if test="${not canWrite}">
     <p class="pl-hint">읽기 전용 — 글쓰기 권한이 없습니다.</p>

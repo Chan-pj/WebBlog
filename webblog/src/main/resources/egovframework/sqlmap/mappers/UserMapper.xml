@@ -48,8 +48,14 @@
         WHERE user_id = #{userId} AND kakao_id IS NULL
     </update>
 
+    <!-- 관리자 회원 목록: 슈퍼 관리자는 화면에 표시하지 않으므로 페이지 계산에서도 제외 -->
     <select id="selectAllUsers" resultMap="blogUserMap">
-        SELECT * FROM blog_user ORDER BY user_id DESC
+        SELECT * FROM blog_user WHERE role != 'SUPER_ADMIN' ORDER BY user_id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countUsersExceptSuperAdmin" resultType="int">
+        SELECT COUNT(*) FROM blog_user WHERE role != 'SUPER_ADMIN'
     </select>
 
     <select id="selectUsersWithoutOwnedBlog" resultMap="blogUserMap">

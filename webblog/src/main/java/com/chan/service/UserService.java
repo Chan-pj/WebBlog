@@ -8,7 +8,9 @@ public interface UserService {
      */
     BlogUserVO registerKakaoUser(String kakaoId, String email, boolean emailVerified, String nickname);
     BlogUserVO getUserById(Long userId);
-    List<BlogUserVO> getAllUsers();
+    /** 슈퍼 관리자를 제외한 회원 목록(페이지) */
+    List<BlogUserVO> getAllUsers(int offset, int limit);
+    int countUsersExceptSuperAdmin();
     List<BlogUserVO> getUsersWithoutOwnedBlog();
     long countAllUsers();
     void updateApprovalAndPermission(BlogUserVO user);

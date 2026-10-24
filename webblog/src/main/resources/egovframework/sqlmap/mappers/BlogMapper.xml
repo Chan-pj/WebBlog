@@ -43,6 +43,7 @@
 
     <select id="selectAllBlogs" resultMap="blogMap">
         SELECT * FROM blog ORDER BY blog_id DESC
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
     <select id="selectPublicBlogs" resultMap="blogMap">
@@ -53,6 +54,11 @@
         WHERE b.is_public = 1
         GROUP BY b.blog_id
         ORDER BY b.blog_id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countPublicBlogs" resultType="int">
+        SELECT COUNT(*) FROM blog WHERE is_public = 1
     </select>
 
     <update id="updateBlog" parameterType="com.chan.vo.BlogVO">

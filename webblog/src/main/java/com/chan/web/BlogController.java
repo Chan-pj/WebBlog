@@ -3,6 +3,7 @@ package com.chan.web;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
+import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.chan.service.BlogService;
 import com.chan.service.BoardService;
 import com.chan.service.ModerationService;
+import com.chan.util.PagingUtil;
 import com.chan.vo.BlogMemberVO;
 import com.chan.vo.BlogUserVO;
 import com.chan.vo.BlogVO;
@@ -34,8 +36,11 @@ public class BlogController {
     private ModerationService moderationService;
 
     @GetMapping("/explore.do")
-    public String explore(Model model) {
-        model.addAttribute("blogs", blogService.listPublicBlogs());
+    public String explore(@RequestParam(value = "pageIndex", defaultValue = "1") int pageIndex, Model model) {
+        PaginationInfo paging = PagingUtil.paginate(pageIndex, blogService.countPublicBlogs());
+        model.addAttribute("blogs", blogService.listPublicBlogs(
+                paging.getFirstRecordIndex(), paging.getRecordCountPerPage()));
+        model.addAttribute("paginationInfo", paging);
         return "blog/blogExplore";
     }
 

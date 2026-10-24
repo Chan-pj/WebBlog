@@ -68,8 +68,13 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public List<BlogVO> getAllBlogs() {
-        return blogMapper.selectAllBlogs();
+    public List<BlogVO> getAllBlogs(int offset, int limit) {
+        return blogMapper.selectAllBlogs(offset, limit);
+    }
+
+    @Override
+    public int countAllBlogs() {
+        return blogMapper.countAllBlogs();
     }
 
     @Override
@@ -144,8 +149,13 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public List<BlogVO> listPublicBlogs() {
-        return blogMapper.selectPublicBlogs();
+    public List<BlogVO> listPublicBlogs(int offset, int limit) {
+        return blogMapper.selectPublicBlogs(offset, limit);
+    }
+
+    @Override
+    public int countPublicBlogs() {
+        return blogMapper.countPublicBlogs();
     }
 
     @Override

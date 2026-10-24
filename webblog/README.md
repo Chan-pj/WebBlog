@@ -159,6 +159,8 @@ flowchart BT
 - **로그**: OAuth state·인가 URL·이메일을 INFO 로그에서 제거
 - **카카오 API**: 연결 3초·응답 5초 타임아웃
 - **블로그 대신 만들어 주기**: 옛 역할명 `ADMIN` 검사를 `SUPER_ADMIN` 으로 수정
+- **페이지 나누기**: 게시글 목록·블로그 찾기(`pageIndex`), 관리자 대시보드 블로그(`blogPage`)·회원(`userPage`), 관리자 블로그 목록에 10개씩 페이지 적용(eGov `PaginationInfo` + `<ui:pagination>`, `PagingUtil`)
+- **저장소 정리**: 저장소 루트의 `target/` 빌드 결과물을 git 추적에서 제거하고 루트 `.gitignore` 추가
 - **오류 화면**: `common/error.jsp`가 예외 메시지·스택 트레이스를 노출하던 문제 수정(서버 로그에만 기록), 404 시 오류 페이지 자체가 NPE 나던 문제 수정, 예외 뷰(`cmmn/*`)·`admin/search`·`admin/report` 뷰가 경로 오류로 404 나던 문제 수정
 
 ### 2026-05
@@ -867,7 +869,7 @@ mvn package
 ## 10) 확인된 상태
 
 - `mvn package` 빌드 성공, 전체 JSP 사전 컴파일(jspc) 성공
-- 통합 테스트 28개 통과 (`src/test/java/com/chan/it/WebBlogIntegrationTest.java`)
+- 통합 테스트 30개 통과 (`src/test/java/com/chan/it/WebBlogIntegrationTest.java`)
 
 ### 통합 테스트 실행
 

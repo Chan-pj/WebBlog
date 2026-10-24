@@ -3,6 +3,7 @@ package com.chan.mapper;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.chan.vo.PostVO;
 
@@ -20,7 +21,10 @@ public interface PostMapper {
 
     PostVO selectPostById(Long postId);
 
-    List<PostVO> selectRootPostsByBoardId(Long boardId);
+    List<PostVO> selectRootPostsByBoardId(@Param("boardId") Long boardId,
+                                          @Param("offset") int offset, @Param("limit") int limit);
+
+    int countRootPostsByBoardId(Long boardId);
 
     List<PostVO> selectRepliesByParentPostId(Long parentPostId);
 }

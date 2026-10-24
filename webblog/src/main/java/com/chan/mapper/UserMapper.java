@@ -12,7 +12,8 @@ public interface UserMapper {
     BlogUserVO selectUserByKakaoId(String kakaoId);
     BlogUserVO selectUserById(Long userId);
     int linkKakaoId(@Param("userId") Long userId, @Param("kakaoId") String kakaoId);
-    List<BlogUserVO> selectAllUsers();
+    List<BlogUserVO> selectAllUsers(@Param("offset") int offset, @Param("limit") int limit);
+    int countUsersExceptSuperAdmin();
     List<BlogUserVO> selectUsersWithoutOwnedBlog();
     long countAllUsers();
     void updateApprovalAndPermission(BlogUserVO user);
