@@ -155,6 +155,10 @@ flowchart BT
 - **HTTP 상태**: 잘못된 메서드(405)·파라미터(400)가 500 으로 응답되던 문제 수정(`DefaultHandlerExceptionResolver`), 미사용 BASIC `login-config` 제거(Jetty 등에서 기동 실패 원인)
 - **05 스크립트**: 예전 구조의 `moderation_violations` 테이블이 이미 있으면 필요한 컬럼·FK 를 추가하도록 보강(재실행 안전)
 - **통합 테스트**: `WebBlogIntegrationTest` 추가(§10 참고)
+- **세션 보안**: 카카오 로그인 성공 시 세션 ID 재발급(세션 고정 공격 방지)·CSRF 토큰 재발급, 로그아웃 시 세션 전체 폐기, 세션 쿠키 HttpOnly·URL `;jsessionid` 노출 차단·30분 만료(`web.xml` `session-config`, HTTPS 운영 시 `secure` 주석 해제)
+- **로그**: OAuth state·인가 URL·이메일을 INFO 로그에서 제거
+- **카카오 API**: 연결 3초·응답 5초 타임아웃
+- **블로그 대신 만들어 주기**: 옛 역할명 `ADMIN` 검사를 `SUPER_ADMIN` 으로 수정
 - **오류 화면**: `common/error.jsp`가 예외 메시지·스택 트레이스를 노출하던 문제 수정(서버 로그에만 기록), 404 시 오류 페이지 자체가 NPE 나던 문제 수정, 예외 뷰(`cmmn/*`)·`admin/search`·`admin/report` 뷰가 경로 오류로 404 나던 문제 수정
 
 ### 2026-05
@@ -863,14 +867,14 @@ mvn package
 ## 10) 확인된 상태
 
 - `mvn package` 빌드 성공, 전체 JSP 사전 컴파일(jspc) 성공
-- 통합 테스트 24개 통과 (`src/test/java/com/chan/it/WebBlogIntegrationTest.java`)
+- 통합 테스트 28개 통과 (`src/test/java/com/chan/it/WebBlogIntegrationTest.java`)
 
 ### 통합 테스트 실행
 
 실제 Spring XML 설정으로 컨트롤러·서비스·매퍼를 **테스트 DB**에서 함께 검증합니다(CSRF, 멤버 상태 IDOR, 답글 권한, 폼 바인딩, 관리자 검색, 위반 기록, 회원·블로그 삭제, 세션 갱신 등). DB가 필요하므로 기본 빌드에서는 건너뜁니다.
 
 1. 테스트 DB 준비(앱 계정으로 가능 — MariaDB 기본 설정은 `test_` 로 시작하는 DB 생성을 허용): `test_webblog` 에 `01_create_tables.sql`, `05_...sql` 을 `USE` 대상만 바꿔 실행하고, 로그용 `test_webblog_log` 도 만듭니다.
-2. 실행: `mvn test -Dwebblog.it=true` (다른 DB 이름은 `-Dwebblog.it.db=test_xxx`)
+2. 실행: `mvn test -Dwebblog.it=true` (다른 DB 이름은 `-Dwebblog.it.db=test_xxx`). 카카오 콜백 테스트는 환경변수 `KAKAO_REST_API_KEY` 가 있을 때만 실행됨(카카오 서버는 Mock 으로 대체하므로 더미 값이면 충분)
 3. 테스트는 매번 테이블을 비우므로 `test_` 로 시작하지 않는 DB 에서는 실행을 거부합니다.
 
 ## 11) 실행 스크린샷 가이드
@@ -937,7 +941,6 @@ flowchart TD
 
 ## 13) 향후 개선 권장사항
 
-- 세션 고정 공격 방어(로그인 시 세션 재생성)
 - OAuth 에러 상세 로깅/예외 분리
 - DB 접속정보 외부 설정화 (`.properties`/환경변수)
 - 테스트 코드(인증/권한/컨트롤러) 보강

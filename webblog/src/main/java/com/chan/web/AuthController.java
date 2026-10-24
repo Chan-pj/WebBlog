@@ -19,6 +19,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +35,7 @@ import com.chan.service.LogService;
 import com.chan.service.UserService;
 import com.chan.vo.BlogUserVO;
 import com.chan.vo.BlogVO;
+import com.chan.web.interceptor.CsrfTokenInterceptor;
 
 @Controller
 @RequestMapping("/auth")
@@ -58,7 +60,11 @@ public class AuthController {
     @Resource
     private LogService logService;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    /** 카카오 API 연결/응답 타임아웃(ms). 카카오가 응답하지 않을 때 요청 스레드가 무기한 묶이지 않도록 한다. */
+    private static final int KAKAO_CONNECT_TIMEOUT_MS = 3000;
+    private static final int KAKAO_READ_TIMEOUT_MS = 5000;
+
+    private final RestTemplate restTemplate = createRestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @GetMapping("/login.do")
@@ -93,8 +99,7 @@ public class AuthController {
                     user.getUserId(), memberBlogId);
             return "redirect:/blog/" + memberBlogId + "/view.do";
         }
-        LOGGER.warn("pendingApproval: approval wait page userId={}, email={}",
-                user.getUserId(), user.getEmail());
+        LOGGER.info("pendingApproval: approval wait page userId={}", user.getUserId());
         return VIEW_PENDING_APPROVAL;
     }
 
@@ -108,11 +113,10 @@ public class AuthController {
 
         HttpSession session = request.getSession();
         String state = generateOAuthState();
-        LOGGER.info("state URL={}", state);
         session.setAttribute(KAKAO_STATE_SESSION_KEY, state);
 
         String redirectUri = buildCallbackUri(request);
-        LOGGER.info("redirectUriL={}", redirectUri);
+        LOGGER.debug("Kakao redirectUri={}", redirectUri);
         String authorizeUrl = UriComponentsBuilder.fromHttpUrl(KAKAO_AUTH_URL)
                 .queryParam("client_id", restApiKey)
                 .queryParam("redirect_uri", redirectUri)
@@ -121,7 +125,7 @@ public class AuthController {
                 .build(true)
                 .toUriString();
 
-        LOGGER.info("authorizeUrl={}", authorizeUrl);
+        // authorizeUrl 에는 state 값이 들어 있으므로 로그에 남기지 않는다.
         LOGGER.debug("Kakao authorize redirect, state set in session");
         return "redirect:" + authorizeUrl;
     }
@@ -164,13 +168,15 @@ public class AuthController {
             Map<String, Object> userInfo = requestKakaoUserInfo(accessToken);
             BlogUserVO kakaoUser = saveOrGetKakaoUser(userInfo);
 
-            LOGGER.info("Kakao login success: userId={}, role={}, email={}",
-                    kakaoUser.getUserId(), kakaoUser.getRole(), kakaoUser.getEmail());
+            LOGGER.info("Kakao login success: userId={}, role={}", kakaoUser.getUserId(), kakaoUser.getRole());
             // 카카오 로그인 로그
             logService.log(kakaoUser.getUserId(), "LOGIN_KAKAO", request.getRemoteAddr());
 
             String next = buildPostLoginRedirect(kakaoUser);
             if (shouldEstablishLoginSession(next)) {
+                // 세션 고정 공격 방지: 로그인 시점에 세션 ID 를 새로 발급하고 CSRF 토큰도 다시 만들게 한다.
+                request.changeSessionId();
+                session.removeAttribute(CsrfTokenInterceptor.SESSION_KEY);
                 session.setAttribute(LOGIN_USER_SESSION_KEY, kakaoUser);
             }
             return next;
@@ -187,15 +193,23 @@ public class AuthController {
         HttpSession session = request.getSession(false);
         if (session != null) {
             Object u = session.getAttribute(LOGIN_USER_SESSION_KEY);
-            session.removeAttribute(LOGIN_USER_SESSION_KEY);
             if (u instanceof BlogUserVO) {
                 BlogUserVO user = (BlogUserVO) u;
-                LOGGER.info("Logout: userId={}, email={}", user.getUserId(), user.getEmail());
+                LOGGER.info("Logout: userId={}", user.getUserId());
                 // 로그아웃 로그
                 logService.log(user.getUserId(), "LOGOUT", request.getRemoteAddr());
             }
+            // 세션 전체를 폐기해 로그인 정보·CSRF 토큰 등을 함께 지운다.
+            session.invalidate();
         }
         return "redirect:/auth/login.do";
+    }
+
+    private static RestTemplate createRestTemplate() {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(KAKAO_CONNECT_TIMEOUT_MS);
+        factory.setReadTimeout(KAKAO_READ_TIMEOUT_MS);
+        return new RestTemplate(factory);
     }
 
     private boolean isValidState(HttpSession session, String state) {

@@ -37,6 +37,7 @@ import com.chan.service.ReportService;
 import com.chan.service.UserService;
 import com.chan.vo.AdminSearchResultVO;
 import com.chan.vo.BlogUserVO;
+import com.chan.web.AuthController;
 
 /**
  * 실제 Spring XML 설정 + 테스트 DB(test_webblog)로 컨트롤러·서비스·매퍼를 함께 검증하는 통합 테스트.
@@ -533,6 +534,76 @@ class WebBlogIntegrationTest {
         MvcResult r = mvc.perform(get("/").session(s)).andReturn();
         assertEquals("/auth/login.do", r.getResponse().getRedirectedUrl());
         assertNull(s.getAttribute("loginUser"));
+    }
+
+    // ------------------------------------------------------------------ 세션 고정·로그아웃·카카오 호출 (보안 보강)
+
+    @Test
+    void kakaoCallback_regeneratesSessionIdAndCsrfToken() throws Exception {
+        org.junit.jupiter.api.Assumptions.assumeTrue(System.getenv("KAKAO_REST_API_KEY") != null,
+                "KAKAO_REST_API_KEY 가 없으면 콜백 테스트를 건너뜀(더미 값이면 충분)");
+        org.springframework.web.client.RestTemplate rt = (org.springframework.web.client.RestTemplate)
+                org.springframework.test.util.ReflectionTestUtils.getField(wac.getBean(AuthController.class), "restTemplate");
+        org.springframework.http.client.ClientHttpRequestFactory original = rt.getRequestFactory();
+        org.springframework.test.web.client.MockRestServiceServer kakao =
+                org.springframework.test.web.client.MockRestServiceServer.bindTo(rt).build();
+        try {
+            kakao.expect(req -> assertEquals("https://kauth.kakao.com/oauth/token", req.getURI().toString()))
+                    .andRespond(org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess(
+                            "{\"access_token\":\"tok\"}", org.springframework.http.MediaType.APPLICATION_JSON));
+            kakao.expect(req -> assertEquals("https://kapi.kakao.com/v2/user/me", req.getURI().toString()))
+                    .andRespond(org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess(
+                            "{\"id\":777,\"kakao_account\":{\"email\":\"k@t.com\",\"is_email_valid\":true,"
+                                    + "\"is_email_verified\":true,\"profile\":{\"nickname\":\"카카오\"}}}",
+                            org.springframework.http.MediaType.APPLICATION_JSON));
+
+            MockHttpSession s = new MockHttpSession();
+            s.setAttribute("KAKAO_OAUTH_STATE", "st");
+            s.setAttribute("csrfToken", "attacker-known-token");
+            String before = s.getId();
+
+            MvcResult r = mvc.perform(get("/auth/kakao/callback.do").session(s).param("code", "c").param("state", "st"))
+                    .andExpect(status().isOk()).andReturn();
+            kakao.verify();
+            assertEquals("auth/pendingApproval", r.getModelAndView().getViewName());
+            assertFalse(before.equals(s.getId()), "로그인 후 세션 ID 가 바뀌어야 함");
+            assertNotNull(s.getAttribute("loginUser"));
+            assertNull(s.getAttribute("csrfToken"), "로그인 전 CSRF 토큰은 폐기되어야 함");
+            assertNull(s.getAttribute("KAKAO_OAUTH_STATE"));
+        } finally {
+            rt.setRequestFactory(original);
+        }
+    }
+
+    @Test
+    void kakaoRestTemplate_hasTimeouts() {
+        org.springframework.web.client.RestTemplate rt = (org.springframework.web.client.RestTemplate)
+                org.springframework.test.util.ReflectionTestUtils.getField(wac.getBean(AuthController.class), "restTemplate");
+        Object factory = rt.getRequestFactory();
+        assertTrue(factory instanceof org.springframework.http.client.SimpleClientHttpRequestFactory);
+        assertEquals(3000, org.springframework.test.util.ReflectionTestUtils.getField(factory, "connectTimeout"));
+        assertEquals(5000, org.springframework.test.util.ReflectionTestUtils.getField(factory, "readTimeout"));
+    }
+
+    @Test
+    void logout_invalidatesSession() throws Exception {
+        long u = member("u@t.com");
+        MockHttpSession s = loginAs(u);
+        mvc.perform(get("/auth/logout.do").session(s)).andExpect(redirectedUrl("/auth/login.do"));
+        assertTrue(s.isInvalid());
+    }
+
+    @Test
+    void provisionBlog_refusesSuperAdmin() throws Exception {
+        long admin = user("admin@t.com", "SUPER_ADMIN", true, true, true);
+        long other = user("admin2@t.com", "SUPER_ADMIN", true, true, true);
+        long normal = member("m@t.com");
+        mvc.perform(postWithCsrf("/admin/user/provisionBlog.do", loginAs(admin)).param("userId", String.valueOf(other)))
+                .andExpect(redirectedUrl("/admin/dashboard.do"));
+        assertEquals(0, count("SELECT COUNT(*) FROM blog WHERE owner_user_id = ?", other));
+        mvc.perform(postWithCsrf("/admin/user/provisionBlog.do", loginAs(admin)).param("userId", String.valueOf(normal)))
+                .andExpect(redirectedUrl("/admin/dashboard.do"));
+        assertEquals(1, count("SELECT COUNT(*) FROM blog WHERE owner_user_id = ?", normal));
     }
 
     // ------------------------------------------------------------------ 오류 화면 / 뷰 경로

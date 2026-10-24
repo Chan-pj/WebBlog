@@ -130,7 +130,7 @@ public class AdminController {
     @PostMapping("/user/provisionBlog.do")
     public String provisionBlog(@RequestParam("userId") Long userId) {
         BlogUserVO target = userService.getUserById(userId);
-        if (target == null || "ADMIN".equalsIgnoreCase(target.getRole())) {
+        if (target == null || "SUPER_ADMIN".equalsIgnoreCase(target.getRole())) {
             return "redirect:/admin/dashboard.do";
         }
         if (blogService.getBlogByOwnerUserId(userId) != null) {

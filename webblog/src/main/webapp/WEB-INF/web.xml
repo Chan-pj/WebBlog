@@ -52,6 +52,18 @@
     
     
     
+	<session-config>
+		<session-timeout>30</session-timeout>
+		<cookie-config>
+			<!-- 스크립트(document.cookie)에서 세션 쿠키를 읽지 못하게 함 -->
+			<http-only>true</http-only>
+			<!-- HTTPS 로 운영할 때는 아래 주석을 풀어 HTTPS 에서만 쿠키가 전송되게 할 것 -->
+			<!-- <secure>true</secure> -->
+		</cookie-config>
+		<!-- URL 에 ;jsessionid= 가 붙어 세션 ID 가 노출되지 않도록 쿠키로만 세션 추적 -->
+		<tracking-mode>COOKIE</tracking-mode>
+	</session-config>
+
 	<error-page>
 		<exception-type>java.lang.Throwable</exception-type>
 		<location>/common/error.jsp</location>
