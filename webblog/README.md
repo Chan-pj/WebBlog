@@ -303,7 +303,6 @@ src/main/java/com/chan
 src/main/resources
 ├─ egovframework/spring/*.xml
 ├─ egovframework/sqlmap/mappers/*.xml
-├─ db/sampledb.sql
 └─ db/mariadb/*.sql
 
 src/main/webapp
@@ -386,14 +385,14 @@ classpath*:egovframework/spring/context-*.xml
 | 구역 | 내용 |
 |------|------|
 | **컴포넌트 스캔** | `egovframework`, `com.chan` 중 **`@Controller`만** 포함. `@Service`, `@Repository`는 제외 → 비즈니스 빈은 루트에서만 관리 |
-| **RequestMappingHandlerAdapter** | `EgovBindingInitializer` 연동 — eGov 샘플에서 쓰는 바인딩/날짜 등 초기화 관례 |
+| **RequestMappingHandlerAdapter** | `WebBlogBindingInitializer` 연동 — eGov 샘플에서 쓰는 바인딩/날짜 등 초기화 관례 |
 | **RequestMappingHandlerMapping** | `interceptors`: `localeChangeInterceptor`, `adminAuthInterceptor` 순서로 등록 |
 | **Locale** | `SessionLocaleResolver` + `LocaleChangeInterceptor` (`?language=...` 파라미터로 로케일 변경) |
 | **관리자 인터셉터** | `MappedInterceptor`: URL 패턴 `/admin/**` 에만 `AdminAuthInterceptor` 적용 (세션·`SUPER_ADMIN` 역할 검사) |
 | **예외 뷰** | `SimpleMappingExceptionResolver` — 데이터 접근/트랜잭션/eGovBiz 등 예외별 JSP 뷰 이름(`cmmn/...`) 매핑 |
 | **Tiles** | `TilesConfigurer` → `tiles.xml` 로드. `TilesViewResolver` **order=1** — 컨트롤러가 반환한 논리 뷰 이름이 Tiles 정의와 맞으면 레이아웃 적용 |
 | **JSP 폴백** | `UrlBasedViewResolver` **order=2**, 접두사 `/WEB-INF/jsp/egovframework/example/` — **샘플 eGov JSP** 경로. Tiles에 없는 샘플 뷰용 |
-| **페이지네이션** | eGov `DefaultPaginationManager` + `EgovImgPaginationRenderer` (샘플 목록 등에서 사용 시) |
+| **페이지네이션** | eGov `DefaultPaginationManager` + `WebBlogImgPaginationRenderer` (샘플 목록 등에서 사용 시) |
 | **노컨트롤러 URL** | `<mvc:view-controller path="/cmmn/validator.do" view-name="cmmn/validator"/>` — 검증 데모 페이지 직매핑 |
 
 ### 뷰 이름과 실제 화면

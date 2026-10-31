@@ -15,5 +15,5 @@ public interface UserService {
     long countAllUsers();
     void updateApprovalAndPermission(BlogUserVO user);
     void updateProtection(Long userId, boolean managementBlocked, boolean profileRestricted);
-    void deleteUser(Long userId); // ← 추가
+    void deleteUser(Long userId);
 }

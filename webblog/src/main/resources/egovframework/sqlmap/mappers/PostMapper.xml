@@ -10,7 +10,7 @@
         <result property="writerUserId" column="writer_user_id"/>
         <result property="title" column="title"/>
         <result property="content" column="content"/>
-        <result property="writerNickname" column="writer_nickname"/> <!-- ← 추가 -->
+        <result property="writerNickname" column="writer_nickname"/>
     </resultMap>
 
     <insert id="insertPost" parameterType="com.chan.vo.PostVO"

@@ -98,7 +98,7 @@ public class BlogVO {
                 '}';
     }
     
-    private int memberCount; // ← 추가
+    private int memberCount;
 
     public int getMemberCount() { return memberCount; }
     public void setMemberCount(int memberCount) { this.memberCount = memberCount; }

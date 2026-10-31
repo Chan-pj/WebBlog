@@ -10,7 +10,7 @@ public interface BlogService {
     List<BlogVO> getAllBlogs(int offset, int limit);
     int countAllBlogs();
     void updateBlogSetting(BlogVO blog);
-    void deleteBlog(Long blogId); // ← 추가
+    void deleteBlog(Long blogId);
     void addMember(BlogMemberVO member);
     List<BlogMemberVO> getMembers(Long blogId);
     void changeMemberStatus(BlogMemberVO member);

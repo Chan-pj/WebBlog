@@ -8,7 +8,7 @@ public class PostVO {
     private Long writerUserId;
     private String title;
     private String content;
-    private String writerNickname; // ← 추가
+    private String writerNickname;
 
     public Long getPostId() { return postId; }
     public void setPostId(Long postId) { this.postId = postId; }
@@ -24,8 +24,8 @@ public class PostVO {
     public void setTitle(String title) { this.title = title; }
     public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }
-    public String getWriterNickname() { return writerNickname; } // ← 추가
-    public void setWriterNickname(String writerNickname) { this.writerNickname = writerNickname; } // ← 추가
+    public String getWriterNickname() { return writerNickname; }
+    public void setWriterNickname(String writerNickname) { this.writerNickname = writerNickname; }
 
     @Override
     public String toString() {

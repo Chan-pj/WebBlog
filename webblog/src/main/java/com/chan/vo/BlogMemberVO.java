@@ -68,7 +68,7 @@ public class BlogMemberVO {
                 '}';
     }
     
-    private String nickname; // ← 추가
+    private String nickname;
 
     public String getNickname() { return nickname; }
     public void setNickname(String nickname) { this.nickname = nickname; }

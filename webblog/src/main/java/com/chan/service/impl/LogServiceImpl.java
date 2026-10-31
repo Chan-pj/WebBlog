@@ -2,7 +2,7 @@ package com.chan.service.impl;
 
 import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
-import com.chan.log.LogMapper;  // ← 변경
+import com.chan.log.LogMapper;
 import com.chan.service.LogService;
 
 @Service

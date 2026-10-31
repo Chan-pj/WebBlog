@@ -198,7 +198,7 @@ public class BlogServiceImpl implements BlogService {
         if (!actingUser.isApproved()) {
             throw new IllegalStateException("승인되지 않은 계정입니다.");
         }
-        if (!actingUser.isCanCreateBlog()) {  // ← 이 하나만 남김
+        if (!actingUser.isCanCreateBlog()) {
             throw new IllegalStateException("블로그 생성 권한이 없습니다.");
         }
         BlogVO exists = blogMapper.selectBlogByOwnerUserId(ownerUserId);
