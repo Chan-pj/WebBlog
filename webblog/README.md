@@ -84,10 +84,6 @@ flowchart BT
 - 슬라이드 재생성(내용 수정 후): `pip install python-pptx` 후 `python docs/build_practice_pptx.py`
 - PRD 문서(학생 설명용): `docs/PRD_학생용_블로그플랫폼.md`
 - 수업 발표 대본(40분/20페이지): `docs/수업발표용_40분_20페이지_블로그PRD.md`
-- 수업 발표 PPT(40분/20페이지): `docs/수업발표용_40분_20페이지_블로그PRD.pptx`
-- 발표 PPT 재생성 스크립트: `docs/build_prd_40min_pptx.py`
-- 수업 발표 PPT v2(디자인 보강): `docs/수업발표용_40분_20페이지_블로그PRD_v2.pptx`
-- 발표 PPT v2 재생성 스크립트: `docs/build_prd_40min_pptx_v2.py`
 - 수업 발표 PPT v3(학교정보/로고/스크린샷 자동삽입): `docs/수업발표용_40분_20페이지_블로그PRD_v3.pptx`
 - 발표 PPT v3 재생성 스크립트: `docs/build_prd_40min_pptx_v3.py`
 
