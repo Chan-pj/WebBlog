@@ -1,6 +1,6 @@
-# webblog (eGovFrame 4.3.1)
+# webblog (eGovFrame 4.3.0)
 
-전자정부프레임워크 4.3.1 기반의 웹 블로그 프로젝트입니다.  
+전자정부프레임워크 4.3.0 기반의 웹 블로그 프로젝트입니다.  
 Spring MVC + MyBatis + Tiles 구조로 구성되어 있으며, 로그인은 카카오 OAuth 간편로그인만 지원합니다.
 
 ## 1) 프로젝트 개요
@@ -79,7 +79,7 @@ flowchart BT
 
 ## 교육용 자료 (5주 실습 교안)
 
-- PowerPoint: `docs/webblog-5week-practice.pptx`  
+- PowerPoint: `docs/webblog_20260429.pptx`  
   (1주: 전체 흐름·환경·설정·DB, 2주: 카카오 인증, 3주: 블로그 관리, 4주: 테스트, 5주: 2-tier 배포)
 - 슬라이드 재생성(내용 수정 후): `pip install python-pptx` 후 `python docs/build_practice_pptx.py`
 - PRD 문서(학생 설명용): `docs/PRD_학생용_블로그플랫폼.md`
