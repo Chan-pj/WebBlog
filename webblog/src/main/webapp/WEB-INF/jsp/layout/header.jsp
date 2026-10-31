@@ -4,7 +4,7 @@
     <h1><a href="${pageContext.request.contextPath}/">webblog</a></h1>
     <c:if test="${not empty sessionScope.loginUser}">
         <p style="font-size: 12px; color: #9a9a9a; margin-top: 3px;">
-            <strong style="color: #2e2e2e; font-weight: 500;">${sessionScope.loginUser.nickname}</strong>님 환영합니다
+            <strong style="color: #2e2e2e; font-weight: 500;"><c:out value="${sessionScope.loginUser.nickname}"/></strong>님 환영합니다
         </p>
     </c:if>
 </div>

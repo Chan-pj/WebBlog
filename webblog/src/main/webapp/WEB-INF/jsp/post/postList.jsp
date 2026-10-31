@@ -121,7 +121,7 @@
                         <c:out value="${post.title}"/>
                     </a>
                 </td>
-                <td class="writer">${post.writerNickname}</td>
+                <td class="writer"><c:out value="${post.writerNickname}"/></td>
                 <td class="reply-col">
                     <c:if test="${not empty post.parentPostId}">
                         <span class="reply-badge">답글</span>

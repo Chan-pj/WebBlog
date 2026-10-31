@@ -67,7 +67,7 @@
         <c:forEach var="member" items="${members}">
             <tr>
                 <td>${member.memberId}</td>
-                <td>${member.nickname}</td>
+                <td><c:out value="${member.nickname}"/></td>
                 <td>${member.memberRole}</td>
                 <td>
                     <span class="status-badge status-${member.status}">
